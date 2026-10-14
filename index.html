@@ -40,6 +40,10 @@ button,input{font:inherit}button,a{ -webkit-tap-highlight-color:transparent}a{co
 .field select{font:inherit}
 @media(max-width:520px){.custom-grid{grid-template-columns:1fr}.custom-toolbar{align-items:flex-start}.custom-add{padding:10px 11px;font-size:13px}}
 
+
+/* Admin-configured layout support */
+[data-layout-id].layout-dragging{opacity:.45;outline:2px dashed var(--blue)}
+[data-layout-id].layout-drop-target{outline:2px solid var(--blue);outline-offset:3px}
 </style>
 </head>
 <body>
@@ -59,23 +63,23 @@ button,input{font:inherit}button,a{ -webkit-tap-highlight-color:transparent}a{co
   <div class="layout">
     <main class="main-col">
       <div class="section-heading"><div><h3>আপনার গুরুত্বপূর্ণ কার্ড</h3><p>জনপ্রিয় সরকারি পরিষেবাগুলিতে দ্রুত প্রবেশ করুন</p></div><a href="#services" class="small-link" id="clearSearch">সব দেখুন ↗</a></div>
-      <section class="cards" id="services">
-        <article class="service-card searchable" data-search="রেশন কার্ড ration card খাদ্য বিভাগ পশ্চিমবঙ্গ food">
+      <section class="cards" id="services" data-layout-group="services">
+        <article class="service-card searchable" data-search="রেশন কার্ড ration card খাদ্য বিভাগ পশ্চিমবঙ্গ food" data-layout-id="ration">
           <div class="card-top"><div class="service-icon ration">🛒</div><span class="card-tag">খাদ্য ও সরবরাহ</span></div>
           <h4>রেশন কার্ড</h4><p>রেশন কার্ডের তথ্য, আবেদন ও পরিষেবা</p>
           <div class="card-footer"><span>সরকারি পোর্টাল</span><a class="open-link" href="https://food.wb.gov.in/" target="_blank" rel="noopener noreferrer">পোর্টাল খুলুন ↗</a></div>
         </article>
-        <article class="service-card searchable" data-search="প্যান কার্ড pan card income tax আয়কর">
+        <article class="service-card searchable" data-search="প্যান কার্ড pan card income tax আয়কর" data-layout-id="pan">
           <div class="card-top"><div class="service-icon pan">💳</div><span class="card-tag">আয়কর</span></div>
           <h4>PAN কার্ড</h4><p>PAN সংক্রান্ত আবেদন ও আয়কর পরিষেবা</p>
           <div class="card-footer"><span>সরকারি পোর্টাল</span><a class="open-link" href="https://www.incometax.gov.in/iec/foportal/" target="_blank" rel="noopener noreferrer">পোর্টাল খুলুন ↗</a></div>
         </article>
-        <article class="service-card searchable" data-search="ভোটার কার্ড voter id election ভোটার নির্বাচন">
+        <article class="service-card searchable" data-search="ভোটার কার্ড voter id election ভোটার নির্বাচন" data-layout-id="voter">
           <div class="card-top"><div class="service-icon voter">🗳️</div><span class="card-tag">নির্বাচন</span></div>
           <h4>ভোটার কার্ড</h4><p>ভোটার তালিকা, পরিচয়পত্র ও আবেদন</p>
           <div class="card-footer"><span>নির্বাচন কমিশন</span><a class="open-link" href="https://voters.eci.gov.in/" target="_blank" rel="noopener noreferrer">পোর্টাল খুলুন ↗</a></div>
         </article>
-        <article class="service-card searchable" data-search="আধার কার্ড aadhaar uidai identity পরিচয়পত্র">
+        <article class="service-card searchable" data-search="আধার কার্ড aadhaar uidai identity পরিচয়পত্র" data-layout-id="aadhaar">
           <div class="card-top"><div class="service-icon aadhaar">🪪</div><span class="card-tag">পরিচয়পত্র</span></div>
           <h4>আধার কার্ড</h4><p>আধার আপডেট, ডাউনলোড ও যাচাই</p>
           <div class="card-footer"><span>UIDAI</span><a class="open-link" href="https://uidai.gov.in/" target="_blank" rel="noopener noreferrer">পোর্টাল খুলুন ↗</a></div>
@@ -84,13 +88,13 @@ button,input{font:inherit}button,a{ -webkit-tap-highlight-color:transparent}a{co
       <div class="empty" id="emptyState">🔎<br><strong>কিছু খুঁজে পাওয়া যায়নি</strong><br><span>অন্য কোনো শব্দ দিয়ে চেষ্টা করুন।</span></div>
 
       <div class="section-heading"><div><h3>দ্রুত ব্যবহারের টুলস</h3><p>প্রতিদিনের ছোটখাটো কাজের জন্য</p></div></div>
-      <section class="cards">
-        <article class="service-card searchable" data-search="ডকুমেন্ট নোট document notes তথ্য সংরক্ষণ">
+      <section class="cards" data-layout-group="tools">
+        <article class="service-card searchable" data-search="ডকুমেন্ট নোট document notes তথ্য সংরক্ষণ" data-layout-id="notes">
           <div class="card-top"><div class="service-icon voter">📝</div><span class="card-tag">ব্যক্তিগত</span></div>
           <h4>আমার নোট</h4><p>গুরুত্বপূর্ণ কাজের তালিকা বা ছোট নোট লিখুন।</p>
           <div class="card-footer"><span>এই ব্রাউজারে</span><button class="open-link tool-action" data-tool="notes">নোট খুলুন ↗</button></div>
         </article>
-        <article class="service-card searchable" data-search="ডকুমেন্ট চেকলিস্ট document checklist কাগজপত্র">
+        <article class="service-card searchable" data-search="ডকুমেন্ট চেকলিস্ট document checklist কাগজপত্র" data-layout-id="checklist">
           <div class="card-top"><div class="service-icon pan">📋</div><span class="card-tag">প্রস্তুতি</span></div>
           <h4>ডকুমেন্ট চেকলিস্ট</h4><p>কোন কোন কাগজপত্র লাগবে, তার তালিকা তৈরি করুন।</p>
           <div class="card-footer"><span>নিজের তালিকা</span><button class="open-link tool-action" data-tool="checklist">তালিকা খুলুন ↗</button></div>
@@ -101,7 +105,7 @@ button,input{font:inherit}button,a{ -webkit-tap-highlight-color:transparent}a{co
         <div><h3>আমার পছন্দের লিংক</h3><p>নিজের যেকোনো ওয়েবসাইট যোগ করুন</p></div>
         <button class="custom-add" id="addCustomLink">＋ লিংক যোগ</button>
       </div>
-      <section class="custom-grid" id="customLinks" aria-live="polite"></section>
+      <section class="custom-grid" id="customLinks" data-layout-group="customLinks" aria-live="polite"></section>
       <div class="empty" id="customEmpty">এখনও কোনো ব্যক্তিগত লিংক যোগ করেননি। “＋ লিংক যোগ” চাপুন।</div>
 
       <div class="quick-stats">
@@ -112,7 +116,7 @@ button,input{font:inherit}button,a{ -webkit-tap-highlight-color:transparent}a{co
     </main>
 
     <aside class="sidebar">
-      <section class="panel searchable" data-search="সরকারি পোর্টাল সরাসরি লিংক government portal পশ্চিমবঙ্গ ভারত">
+      <section class="panel searchable" data-search="সরকারি পোর্টাল সরাসরি লিংক government portal পশ্চিমবঙ্গ ভারত" data-layout-id="government-portals">
         <h3>সরকারি পোর্টাল</h3><p class="panel-sub">প্রয়োজনীয় ওয়েবসাইটে দ্রুত যান</p>
         <div class="link-list">
           <a class="portal-link" href="https://wb.gov.in/" target="_blank" rel="noopener noreferrer"><span class="mini-icon">🏛️</span><span class="portal-text"><strong>পশ্চিমবঙ্গ সরকার</strong><small>রাজ্য সরকারের মূল পোর্টাল</small></span><span class="external">↗</span></a>
@@ -122,7 +126,7 @@ button,input{font:inherit}button,a{ -webkit-tap-highlight-color:transparent}a{co
           <a class="portal-link" href="https://www.nvsp.in/" target="_blank" rel="noopener noreferrer"><span class="mini-icon">🗳️</span><span class="portal-text"><strong>ভোটার পরিষেবা</strong><small>ভোটার সংক্রান্ত তথ্য</small></span><span class="external">↗</span></a>
         </div>
       </section>
-      <section class="panel searchable" data-search="ডকুমেন্ট ইউটিলিটি টুলস pdf notes checklist calculator">
+      <section class="panel searchable" data-search="ডকুমেন্ট ইউটিলিটি টুলস pdf notes checklist calculator" data-layout-id="utility-panel">
         <h3>ডকুমেন্ট ও ইউটিলিটি</h3><p class="panel-sub">কাজের সুবিধার জন্য দরকারি টুল</p>
         <div class="tool-list">
           <button class="tool-button" data-tool="notes"><span class="mini-icon">📝</span><span class="portal-text"><strong>দ্রুত নোট</strong><small>তথ্য বা রিমাইন্ডার লিখুন</small></span></button>
@@ -131,7 +135,7 @@ button,input{font:inherit}button,a{ -webkit-tap-highlight-color:transparent}a{co
           <button class="tool-button" data-tool="print"><span class="mini-icon">🖨️</span><span class="portal-text"><strong>প্রিন্ট / PDF</strong><small>এই পেজ প্রিন্ট বা PDF করুন</small></span></button>
         </div>
       </section>
-      <section class="panel"><h3>🔒 নিরাপত্তার কথা</h3><p class="panel-sub" style="margin-bottom:0">এখানে আধার নম্বর, PAN, OTP, পাসওয়ার্ড, ব্যাংক তথ্য বা পরিচয়পত্রের ছবি রাখবেন না। এই ড্যাশবোর্ডে লগইন বা সার্ভার-সুরক্ষিত স্টোরেজ নেই। পরিচয়পত্রের কাজের জন্য সরকারি ওয়েবসাইট ব্যবহার করুন।</p></section>
+      <section class="panel" data-layout-id="security-panel"><h3>🔒 নিরাপত্তার কথা</h3><p class="panel-sub" style="margin-bottom:0">এখানে আধার নম্বর, PAN, OTP, পাসওয়ার্ড, ব্যাংক তথ্য বা পরিচয়পত্রের ছবি রাখবেন না। এই ড্যাশবোর্ডে লগইন বা সার্ভার-সুরক্ষিত স্টোরেজ নেই। পরিচয়পত্রের কাজের জন্য সরকারি ওয়েবসাইট ব্যবহার করুন।</p></section>
     </aside>
   </div>
   <footer class="footer"><span>© <span id="year"></span> আমার ড্যাশবোর্ড · আপনার ব্যক্তিগত সহায়ক</span><span>এটি একটি স্ট্যাটিক শর্টকাট ড্যাশবোর্ড; সরকারি ওয়েবসাইট নয়। কোনো সাইটকে ১০০% হ্যাক-প্রুফ নিশ্চিত করা যায় না।</span></footer>
@@ -337,6 +341,48 @@ button,input{font:inherit}button,a{ -webkit-tap-highlight-color:transparent}a{co
   $$('[data-tool]').forEach(button => button.addEventListener('click', () => openTool(button.dataset.tool)));
   $('#helpBtn').addEventListener('click', () => openModal('ড্যাশবোর্ড ব্যবহার করবেন যেভাবে', `<p>• সার্চ বারে কার্ড, পোর্টাল বা টুলের নাম লিখুন।<br>• কার্ডের “পোর্টাল খুলুন” লিংকে ক্লিক করে সংশ্লিষ্ট সাইটে যান।<br>• নোট, চেকলিস্ট ও ব্যক্তিগত লিংক এই ব্রাউজারে সংরক্ষিত হয়।<br>• সরকারি কাজের আগে ওয়েবসাইটের ঠিকানা যাচাই করুন।</p><p class="muted-note">এই ড্যাশবোর্ড কোনো সরকারি সংস্থার সঙ্গে যুক্ত নয় এবং সরকারি পরিষেবা প্রদান করে না।</p>`));
 })();
+</script>
+
+<script type="module">
+// Public layout configuration: only reads the public layout document. Admin writes are protected by Firestore Rules.
+import { initializeApp, getApps } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
+import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
+const firebaseConfig = {
+  apiKey: 'AIzaSyAPvK_clkRscLgb4QfOyLVMKyp2dNrBlw',
+  authDomain: 'bangla-personal-dashboard.firebaseapp.com',
+  projectId: 'bangla-personal-dashboard',
+  storageBucket: 'bangla-personal-dashboard.firebasestorage.app',
+  messagingSenderId: '885984909040',
+  appId: '1:885984909040:web:79ba997fbc99c32ca09435',
+  measurementId: 'G-5S6SNNY97L'
+};
+try {
+ const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+ const db = getFirestore(app);
+ const snap = await getDoc(doc(db, 'siteContent', 'cardLayout'));
+ if (snap.exists()) {
+   const groups = snap.data().groups || {};
+   for (const [groupId, orderedIds] of Object.entries(groups)) {
+     const group = document.querySelector(`[data-layout-group="${CSS.escape(groupId)}"]`);
+     if (!group || !Array.isArray(orderedIds)) continue;
+     const children = [...group.children];
+     const byId = new Map(children.filter(el => el.dataset.layoutId).map(el => [el.dataset.layoutId, el]));
+     const ordered = orderedIds.map(id => byId.get(id)).filter(Boolean);
+     children.filter(el => !el.dataset.layoutId).forEach(el => ordered.push(el));
+     ordered.forEach(el => group.appendChild(el));
+   }
+   // Sidebar panels are reordered only within the sidebar, never into the main column.
+   const side = document.querySelector('.sidebar');
+   const sideOrder = groups.sidebar;
+   if (side && Array.isArray(sideOrder)) {
+     const children = [...side.children];
+     const byId = new Map(children.filter(el => el.dataset.layoutId).map(el => [el.dataset.layoutId, el]));
+     const ordered = sideOrder.map(id => byId.get(id)).filter(Boolean);
+     children.filter(el => !el.dataset.layoutId).forEach(el => ordered.push(el));
+     ordered.forEach(el => side.appendChild(el));
+   }
+ }
+} catch (err) { console.warn('Firebase layout could not be loaded; default layout remains active.', err); }
 </script>
 </body>
 </html>
