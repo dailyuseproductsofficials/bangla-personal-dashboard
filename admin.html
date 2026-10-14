@@ -1,0 +1,311 @@
+
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin Panel | বাংলা পার্সোনাল ড্যাশবোর্ড</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; padding: 24px 16px; min-height: 100vh;
+      font-family: system-ui, "Noto Sans Bengali", sans-serif;
+      background: #f3f6fb; color: #172033;
+    }
+    main { max-width: 760px; margin: auto; }
+    .card {
+      background: white; border: 1px solid #e2e8f0;
+      border-radius: 18px; padding: 24px; margin: 16px 0;
+      box-shadow: 0 5px 24px #1720330a;
+    }
+    h1 { font-size: 26px; margin: 0 0 8px; }
+    h2 { font-size: 19px; margin-top: 0; }
+    p { line-height: 1.6; color: #536176; }
+    label { display: block; font-size: 14px; margin: 14px 0 6px; }
+    input, textarea {
+      width: 100%; padding: 12px; border: 1px solid #cbd5e1;
+      border-radius: 10px; font: inherit; background: #fff;
+    }
+    textarea { min-height: 82px; resize: vertical; }
+    button {
+      border: 0; border-radius: 10px; padding: 12px 16px;
+      margin-top: 14px; font: inherit; font-weight: 650;
+      cursor: pointer; background: #155eef; color: white;
+    }
+    button.secondary { background: #e8eef8; color: #172033; }
+    button.danger { background: #b42318; }
+    button:disabled { opacity: .55; cursor: wait; }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .row button { margin-top: 8px; }
+    .muted { font-size: 13px; color: #64748b; }
+    .status { padding: 12px; border-radius: 10px; background: #eef4ff; }
+    .item { border-top: 1px solid #e2e8f0; padding: 14px 0; overflow-wrap: anywhere; }
+    .item strong { display: block; }
+    a { color: #155eef; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>🔐 Admin Panel</h1>
+    <p>বাংলা পার্সোনাল ড্যাশবোর্ড পরিচালনা করুন</p>
+  </header>
+
+  <section id="loginCard" class="card">
+    <h2>অ্যাডমিন লগইন</h2>
+    <p>Firebase Authentication-এ আগে থেকে তৈরি করা অ্যাকাউন্ট ব্যবহার করুন।</p>
+    <form id="loginForm">
+      <label for="email">ইমেইল</label>
+      <input id="email" type="email" autocomplete="username" required>
+      <label for="password">পাসওয়ার্ড</label>
+      <input id="password" type="password" autocomplete="current-password" required>
+      <button id="loginBtn" type="submit">লগইন করুন</button>
+    </form>
+  </section>
+
+  <section id="dashboard" hidden>
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <h2>ড্যাশবোর্ড</h2>
+        <button id="logoutBtn" class="secondary" type="button">লগআউট</button>
+      </div>
+      <p id="accountInfo" class="muted"></p>
+      <div id="status" class="status" role="status">Firebase সংযোগের অপেক্ষায়...</div>
+    </div>
+
+    <div class="card">
+      <h2>কাস্টম লিংক যোগ করুন</h2>
+      <form id="linkForm">
+        <label for="title">লিংকের নাম *</label>
+        <input id="title" maxlength="100" required placeholder="যেমন: আধার কার্ড">
+        <label for="url">ওয়েবসাইট URL *</label>
+        <input id="url" type="url" maxlength="1500" required placeholder="https://example.com">
+        <label for="description">বিবরণ</label>
+        <input id="description" maxlength="300" placeholder="লিংকের সংক্ষিপ্ত বিবরণ">
+        <label for="keywords">সার্চ কীওয়ার্ড (কমা দিয়ে আলাদা করুন)</label>
+        <input id="keywords" maxlength="300" placeholder="আধার, Aadhaar, পরিচয়পত্র">
+        <div class="row">
+          <button id="saveBtn" type="submit">লিংক সংরক্ষণ করুন</button>
+          <button id="cancelEditBtn" class="secondary" type="button" hidden>এডিট বাতিল</button>
+        </div>
+      </form>
+      <p class="muted">এই সংস্করণে লিংকগুলি Firestore-এ সংরক্ষিত হবে। হোমপেজে দেখাতে পরের ধাপে index.html-কে সংযুক্ত করতে হবে।</p>
+    </div>
+
+    <div class="card">
+      <h2>সংরক্ষিত লিংক</h2>
+      <div id="linksList">লিংক লোড হচ্ছে...</div>
+    </div>
+  </section>
+</main>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+  import {
+    getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut
+  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+  import {
+    getFirestore, doc, getDoc, setDoc
+  } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAPvK_clkRscLgb4QfOyLVMKypd2pNrBlw",
+    authDomain: "bangla-personal-dashboard.firebaseapp.com",
+    projectId: "bangla-personal-dashboard",
+    storageBucket: "bangla-personal-dashboard.firebasestorage.app",
+    messagingSenderId: "885984909040",
+    appId: "1:885984909040:web:79ba997fbc99c32ca09435",
+    measurementId: "G-5S6SNNY97L"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const contentRef = doc(db, "siteContent", "customLinks");
+
+  const $ = id => document.getElementById(id);
+  let links = [];
+  let editingId = null;
+
+  function showStatus(message, error = false) {
+    $("status").textContent = message;
+    $("status").style.background = error ? "#fef3f2" : "#eef4ff";
+    $("status").style.color = error ? "#b42318" : "#172033";
+  }
+
+  function explainError(error) {
+    const messages = {
+      "auth/invalid-credential": "ইমেইল বা পাসওয়ার্ড সঠিক নয়।",
+      "auth/invalid-email": "সঠিক ইমেইল ঠিকানা দিন।",
+      "auth/too-many-requests": "অনেকবার চেষ্টা হয়েছে। পরে আবার চেষ্টা করুন।",
+      "permission-denied": "Firestore Rules এই কাজের অনুমতি দেয়নি। UID ও Rules পরীক্ষা করুন।",
+      "unavailable": "Firebase-এ সংযোগ করা যাচ্ছে না। ইন্টারনেট পরীক্ষা করুন।"
+    };
+    return messages[error.code] ||
+      (error.message || "একটি সমস্যা হয়েছে। Firebase সেটিংস পরীক্ষা করুন.");
+  }
+
+  function safeHttpUrl(value) {
+    try {
+      const u = new URL(value);
+      return u.protocol === "https:" || u.protocol === "http:";
+    } catch {
+      return false;
+    }
+  }
+
+  function resetForm() {
+    $("linkForm").reset();
+    editingId = null;
+    $("saveBtn").textContent = "লিংক সংরক্ষণ করুন";
+    $("cancelEditBtn").hidden = true;
+  }
+
+  function renderLinks() {
+    const container = $("linksList");
+    container.replaceChildren();
+
+    if (!links.length) {
+      container.textContent = "এখনও কোনো কাস্টম লিংক সংরক্ষণ করা হয়নি।";
+      return;
+    }
+
+    links.forEach(item => {
+      const wrap = document.createElement("div");
+      wrap.className = "item";
+      const title = document.createElement("strong");
+      title.textContent = item.title || "নামহীন লিংক";
+
+      const desc = document.createElement("p");
+      desc.textContent = item.description || "";
+      const anchor = document.createElement("a");
+      anchor.textContent = item.url;
+      anchor.href = item.url;
+      anchor.target = "_blank";
+      anchor.rel = "noopener noreferrer";
+
+      const edit = document.createElement("button");
+      edit.type = "button";
+      edit.className = "secondary";
+      edit.textContent = "এডিট";
+      edit.addEventListener("click", () => {
+        editingId = item.id;
+        $("title").value = item.title || "";
+        $("url").value = item.url || "";
+        $("description").value = item.description || "";
+        $("keywords").value = (item.keywords || []).join(", ");
+        $("saveBtn").textContent = "পরিবর্তন সংরক্ষণ করুন";
+        $("cancelEditBtn").hidden = false;
+        $("title").focus();
+      });
+
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.className = "danger";
+      remove.textContent = "মুছুন";
+      remove.addEventListener("click", async () => {
+        if (!confirm(`"${item.title}" লিংকটি মুছে ফেলবেন?`)) return;
+        const oldLinks = links;
+        links = links.filter(link => link.id !== item.id);
+        try {
+          await setDoc(contentRef, { items: links });
+          renderLinks();
+          showStatus("লিংক মুছে ফেলা হয়েছে।");
+        } catch (error) {
+          links = oldLinks;
+          renderLinks();
+          showStatus(explainError(error), true);
+        }
+      });
+
+      wrap.append(title, desc, anchor, document.createElement("br"), edit, remove);
+      container.append(wrap);
+    });
+  }
+
+  async function loadLinks() {
+    showStatus("Firestore থেকে লিংক লোড হচ্ছে...");
+    try {
+      const snapshot = await getDoc(contentRef);
+      const items = snapshot.exists() ? snapshot.data().items : [];
+      links = Array.isArray(items)
+        ? items.filter(x => x && typeof x.id === "string" &&
+            typeof x.title === "string" && safeHttpUrl(x.url))
+        : [];
+      renderLinks();
+      showStatus("Firebase সংযোগ সফল।");
+    } catch (error) {
+      showStatus(explainError(error), true);
+      $("linksList").textContent = "তথ্য লোড করা যায়নি। Firestore Rules ও Firebase সেটিংস পরীক্ষা করুন।";
+    }
+  }
+
+  $("loginForm").addEventListener("submit", async event => {
+    event.preventDefault();
+    $("loginBtn").disabled = true;
+    try {
+      await signInWithEmailAndPassword(auth, $("email").value.trim(), $("password").value);
+    } catch (error) {
+      alert(explainError(error));
+    } finally {
+      $("loginBtn").disabled = false;
+    }
+  });
+
+  $("logoutBtn").addEventListener("click", () => signOut(auth));
+  $("cancelEditBtn").addEventListener("click", resetForm);
+
+  $("linkForm").addEventListener("submit", async event => {
+    event.preventDefault();
+    if (!auth.currentUser) return;
+
+    const title = $("title").value.trim();
+    const url = $("url").value.trim();
+    if (!safeHttpUrl(url)) {
+      showStatus("সঠিক http বা https URL দিন।", true);
+      return;
+    }
+
+    const item = {
+      id: editingId || crypto.randomUUID(),
+      title,
+      url,
+      description: $("description").value.trim(),
+      keywords: $("keywords").value.split(",").map(s => s.trim()).filter(Boolean)
+    };
+
+    const oldLinks = links;
+    links = editingId
+      ? links.map(x => x.id === editingId ? item : x)
+      : [...links, item];
+
+    $("saveBtn").disabled = true;
+    try {
+      await setDoc(contentRef, { items: links });
+      resetForm();
+      renderLinks();
+      showStatus("লিংক সফলভাবে সংরক্ষণ করা হয়েছে।");
+    } catch (error) {
+      links = oldLinks;
+      renderLinks();
+      showStatus(explainError(error), true);
+    } finally {
+      $("saveBtn").disabled = false;
+    }
+  });
+
+  onAuthStateChanged(auth, async user => {
+    $("loginCard").hidden = !!user;
+    $("dashboard").hidden = !user;
+    if (user) {
+      $("accountInfo").textContent = "লগইন করা অ্যাকাউন্ট: " + user.email;
+      await loadLinks();
+    } else {
+      links = [];
+      $("linksList").textContent = "লগইন করলে লিংক দেখা যাবে।";
+    }
+  });
+</script>
+</body>
+</html>
