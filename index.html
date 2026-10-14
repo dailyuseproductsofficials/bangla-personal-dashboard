@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#f4f7fb">
+<title>আমার ড্যাশবোর্ড | ব্যক্তিগত সহায়ক</title>
+<style>
+:root{--bg:#f4f7fb;--surface:#fff;--ink:#17243a;--muted:#718096;--line:#e6ebf2;--blue:#4263eb;--blue-soft:#eef2ff;--teal:#0f9d8a;--shadow:0 10px 28px rgba(25,45,85,.06);--radius:20px}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Noto Sans Bengali","Hind Siliguri",sans-serif;line-height:1.55}
+button,input{font:inherit}button,a{ -webkit-tap-highlight-color:transparent}a{color:inherit;text-decoration:none}
+.app{max-width:1440px;margin:auto;padding:26px 30px 40px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:28px}
+.brand{display:flex;align-items:center;gap:12px}.brand-mark{width:46px;height:46px;border-radius:15px;background:linear-gradient(135deg,#4263eb,#6f86ff);display:grid;place-items:center;color:white;font-size:23px;box-shadow:0 8px 18px #4263eb35}.brand h1{font-size:20px;margin:0;letter-spacing:-.4px}.brand p{margin:1px 0 0;color:var(--muted);font-size:13px}
+.top-actions{display:flex;align-items:center;gap:10px}.date-chip,.icon-btn{border:1px solid var(--line);background:var(--surface);border-radius:13px;padding:10px 13px;color:var(--muted);font-size:13px}.icon-btn{cursor:pointer;font-size:18px}
+.hero{background:linear-gradient(115deg,#1e3475,#3f5fe0 70%,#6379f5);color:#fff;border-radius:26px;padding:30px 32px 32px;position:relative;overflow:hidden;box-shadow:0 16px 35px #3456cc26;margin-bottom:24px}.hero:after{content:"";position:absolute;width:280px;height:280px;border:1px solid #ffffff25;border-radius:50%;right:-65px;top:-135px;box-shadow:0 0 0 35px #ffffff08,0 0 0 75px #ffffff06}.hero h2{font-size:clamp(23px,3vw,32px);margin:0 0 6px;letter-spacing:-.5px}.hero p{color:#dce4ff;margin:0 0 23px;font-size:14px}.search-wrap{position:relative;max-width:760px;z-index:1}.search-wrap .search-icon{position:absolute;left:17px;top:50%;transform:translateY(-50%);font-size:20px;color:#8a95a8}.search-wrap input{width:100%;height:58px;border:0;border-radius:16px;background:#fff;padding:0 18px 0 52px;color:var(--ink);outline:none;box-shadow:0 8px 22px #152a7020}.search-wrap input:focus{box-shadow:0 0 0 4px #ffffff40,0 8px 22px #152a7020}.search-hint{font-size:12px;color:#dce4ff;margin-top:10px}
+.section-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:26px 0 14px}.section-heading h3{margin:0;font-size:18px;letter-spacing:-.2px}.section-heading p{margin:3px 0 0;color:var(--muted);font-size:13px}.small-link{font-size:13px;color:var(--blue);font-weight:650}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:22px;align-items:start}.main-col{min-width:0}.cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.service-card{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:21px;min-height:190px;box-shadow:var(--shadow);transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;display:flex;flex-direction:column}.service-card:hover{transform:translateY(-3px);box-shadow:0 15px 34px #203b700e;border-color:#d5defd}.card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}.service-icon{width:48px;height:48px;border-radius:15px;display:grid;place-items:center;font-size:24px}.ration{background:#fff4df}.pan{background:#e6f7f3}.voter{background:#eaf0ff}.aadhaar{background:#ffebeb}.card-tag{font-size:11px;font-weight:700;padding:5px 8px;border-radius:8px;background:#f3f5f9;color:#7a8699}.service-card h4{font-size:18px;margin:16px 0 3px}.service-card p{font-size:13px;color:var(--muted);margin:0 0 17px}.card-footer{display:flex;justify-content:space-between;align-items:center;margin-top:auto;gap:8px}.card-footer span{font-size:12px;color:#8b96a8}.open-link{font-size:13px;color:var(--blue);font-weight:700;display:inline-flex;align-items:center;gap:6px}
+.sidebar{display:grid;gap:18px}.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}.panel h3{font-size:16px;margin:0}.panel-sub{color:var(--muted);font-size:12px;margin:4px 0 15px}.link-list,.tool-list{display:grid;gap:5px}.portal-link,.tool-button{display:flex;align-items:center;gap:11px;padding:10px;border-radius:12px;transition:background .15s;min-width:0}.portal-link:hover,.tool-button:hover{background:#f5f7fc}.mini-icon{width:36px;height:36px;flex:0 0 36px;border-radius:11px;background:#f0f3ff;display:grid;place-items:center;font-size:17px}.portal-text{min-width:0;flex:1}.portal-text strong{display:block;font-size:13px;font-weight:650}.portal-text small{display:block;font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.external{color:#a1aabc;font-size:14px}.tool-button{border:0;background:transparent;text-align:left;width:100%;cursor:pointer;color:var(--ink)}.tool-button .mini-icon{background:#edf8f6}.tool-button .portal-text small{white-space:normal}
+.quick-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:20px}.stat{background:#fff;border:1px solid var(--line);border-radius:16px;padding:15px 17px;display:flex;align-items:center;gap:12px}.stat-icon{font-size:20px;width:40px;height:40px;border-radius:13px;display:grid;place-items:center;background:#f0f3ff}.stat strong{display:block;font-size:17px}.stat small{font-size:12px;color:var(--muted)}
+.empty{display:none;text-align:center;padding:28px;color:var(--muted);border:1px dashed #cdd5e2;border-radius:16px;background:#fff}.empty.show{display:block}
+.footer{display:flex;justify-content:space-between;gap:14px;color:#8a95a7;font-size:12px;margin-top:28px;padding-top:18px;border-top:1px solid var(--line)}
+.toast{position:fixed;bottom:22px;left:50%;transform:translate(-50%,18px);opacity:0;pointer-events:none;background:#17243a;color:#fff;padding:12px 17px;border-radius:13px;box-shadow:0 10px 25px #0002;font-size:13px;transition:.2s;z-index:10;max-width:calc(100% - 30px);text-align:center}.toast.show{opacity:1;transform:translate(-50%,0)}
+.modal-backdrop{position:fixed;inset:0;background:#101a2d80;display:none;place-items:center;padding:20px;z-index:20}.modal-backdrop.show{display:grid}.modal{background:#fff;border-radius:20px;width:min(100%,470px);padding:24px;box-shadow:0 25px 70px #101a2d40}.modal-head{display:flex;justify-content:space-between;align-items:center;gap:12px}.modal h3{margin:0;font-size:19px}.close{border:0;background:#f0f3f8;border-radius:10px;width:36px;height:36px;font-size:20px;cursor:pointer}.modal p{font-size:13px;color:var(--muted)}.field{display:grid;gap:6px;margin:14px 0}.field label{font-size:13px;font-weight:650}.field input,.field textarea{width:100%;border:1px solid var(--line);border-radius:11px;padding:11px 12px;outline:none}.field input:focus,.field textarea:focus{border-color:#8095f5;box-shadow:0 0 0 3px #4263eb14}.primary{border:0;background:var(--blue);color:white;border-radius:11px;padding:11px 16px;font-weight:700;cursor:pointer}.muted-note{font-size:11px;color:#8994a6;margin-top:12px}
+@media(max-width:1000px){.layout{grid-template-columns:minmax(0,1fr) 270px}.app{padding:22px}.service-card{padding:18px}}
+@media(max-width:760px){.layout{grid-template-columns:1fr}.sidebar{grid-template-columns:repeat(2,minmax(0,1fr))}.sidebar .panel:first-child{grid-column:1/-1}.quick-stats{grid-template-columns:1fr 1fr}.quick-stats .stat:last-child{grid-column:1/-1}.hero{padding:25px 22px}.app{padding:18px}.date-chip{display:none}}
+@media(max-width:520px){.app{padding:14px}.topbar{margin-bottom:18px}.brand h1{font-size:17px}.brand-mark{width:42px;height:42px}.cards{grid-template-columns:1fr}.service-card{min-height:174px}.sidebar{grid-template-columns:1fr}.sidebar .panel:first-child{grid-column:auto}.hero{border-radius:21px}.hero p{font-size:13px}.search-wrap input{height:54px}.section-heading{margin-top:22px}.quick-stats{grid-template-columns:1fr}.quick-stats .stat:last-child{grid-column:auto}.footer{flex-direction:column}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand"><div class="brand-mark">⌂</div><div><h1>আমার ড্যাশবোর্ড</h1><p>আপনার প্রয়োজনীয় পরিষেবা, এক জায়গায়</p></div></div>
+    <div class="top-actions"><div class="date-chip" id="todayDate">📅 আজকের তারিখ</div><button class="icon-btn" id="helpBtn" aria-label="সহায়তা" title="সহায়তা">?</button></div>
+  </header>
+
+  <section class="hero">
+    <h2>সব জরুরি কাজ, এখন আরও সহজ ✨</h2>
+    <p>সরকারি পরিষেবা, দরকারি ডকুমেন্ট ও ইউটিলিটি টুলস দ্রুত খুঁজে নিন।</p>
+    <div class="search-wrap"><span class="search-icon">⌕</span><input id="searchInput" type="search" placeholder="যেমন: আধার, PAN, ভোটার কার্ড, PDF..." autocomplete="off" aria-label="ড্যাশবোর্ডে খুঁজুন"></div>
+    <div class="search-hint">টিপস: কার্ড, পোর্টাল বা টুলের নাম লিখে খুঁজুন</div>
+  </section>
+
+  <div class="layout">
+    <main class="main-col">
+      <div class="section-heading"><div><h3>আপনার গুরুত্বপূর্ণ কার্ড</h3><p>জনপ্রিয় সরকারি পরিষেবাগুলিতে দ্রুত প্রবেশ করুন</p></div><a href="#services" class="small-link" id="clearSearch">সব দেখুন ↗</a></div>
+      <section class="cards" id="services">
+        <article class="service-card searchable" data-search="রেশন কার্ড ration card খাদ্য বিভাগ পশ্চিমবঙ্গ food">
+          <div class="card-top"><div class="service-icon ration">🛒</div><span class="card-tag">খাদ্য ও সরবরাহ</span></div>
+          <h4>রেশন কার্ড</h4><p>রেশন কার্ডের তথ্য, আবেদন ও পরিষেবা</p>
+          <div class="card-footer"><span>সরকারি পোর্টাল</span><a class="open-link" href="https://food.wb.gov.in/" target="_blank" rel="noopener noreferrer">পোর্টাল খুলুন ↗</a></div>
+        </article>
+        <article class="service-card searchable" data-search="প্যান কার্ড pan card income tax আয়কর">
+          <div class="card-top"><div class="service-icon pan">💳</div><span class="card-tag">আয়কর</span></div>
+          <h4>PAN কার্ড</h4><p>PAN সংক্রান্ত আবেদন ও আয়কর পরিষেবা</p>
+          <div class="card-footer"><span>সরকারি পোর্টাল</span><a class="open-link" href="https://www.incometax.gov.in/iec/foportal/" target="_blank" rel="noopener noreferrer">পোর্টাল খুলুন ↗</a></div>
+        </article>
+        <article class="service-card searchable" data-search="ভোটার কার্ড voter id election ভোটার নির্বাচন">
+          <div class="card-top"><div class="service-icon voter">🗳️</div><span class="card-tag">নির্বাচন</span></div>
+          <h4>ভোটার কার্ড</h4><p>ভোটার তালিকা, পরিচয়পত্র ও আবেদন</p>
+          <div class="card-footer"><span>নির্বাচন কমিশন</span><a class="open-link" href="https://voters.eci.gov.in/" target="_blank" rel="noopener noreferrer">পোর্টাল খুলুন ↗</a></div>
+        </article>
+        <article class="service-card searchable" data-search="আধার কার্ড aadhaar uidai identity পরিচয়পত্র">
+          <div class="card-top"><div class="service-icon aadhaar">🪪</div><span class="card-tag">পরিচয়পত্র</span></div>
+          <h4>আধার কার্ড</h4><p>আধার আপডেট, ডাউনলোড ও যাচাই</p>
+          <div class="card-footer"><span>UIDAI</span><a class="open-link" href="https://uidai.gov.in/" target="_blank" rel="noopener noreferrer">পোর্টাল খুলুন ↗</a></div>
+        </article>
+      </section>
+      <div class="empty" id="emptyState">🔎<br><strong>কিছু খুঁজে পাওয়া যায়নি</strong><br><span>অন্য কোনো শব্দ দিয়ে চেষ্টা করুন।</span></div>
+
+      <div class="section-heading"><div><h3>দ্রুত ব্যবহারের টুলস</h3><p>প্রতিদিনের ছোটখাটো কাজের জন্য</p></div></div>
+      <section class="cards">
+        <article class="service-card searchable" data-search="ডকুমেন্ট নোট document notes তথ্য সংরক্ষণ">
+          <div class="card-top"><div class="service-icon voter">📝</div><span class="card-tag">ব্যক্তিগত</span></div>
+          <h4>আমার নোট</h4><p>গুরুত্বপূর্ণ কাজের তালিকা বা ছোট নোট লিখুন।</p>
+          <div class="card-footer"><span>এই ব্রাউজারে</span><button class="open-link tool-action" data-tool="notes">নোট খুলুন ↗</button></div>
+        </article>
+        <article class="service-card searchable" data-search="ডকুমেন্ট চেকলিস্ট document checklist কাগজপত্র">
+          <div class="card-top"><div class="service-icon pan">📋</div><span class="card-tag">প্রস্তুতি</span></div>
+          <h4>ডকুমেন্ট চেকলিস্ট</h4><p>কোন কোন কাগজপত্র লাগবে, তার তালিকা তৈরি করুন।</p>
+          <div class="card-footer"><span>নিজের তালিকা</span><button class="open-link tool-action" data-tool="checklist">তালিকা খুলুন ↗</button></div>
+        </article>
+      </section>
+      <div class="quick-stats">
+        <div class="stat"><div class="stat-icon">🔗</div><div><strong>৪টি</strong><small>প্রধান পরিষেবা</small></div></div>
+        <div class="stat"><div class="stat-icon">🧰</div><div><strong>২টি</strong><small>ব্যক্তিগত টুল</small></div></div>
+        <div class="stat"><div class="stat-icon">📱</div><div><strong>Responsive</strong><small>মোবাইল ও কম্পিউটার</small></div></div>
+      </div>
+    </main>
+
+    <aside class="sidebar">
+      <section class="panel searchable" data-search="সরকারি পোর্টাল সরাসরি লিংক government portal পশ্চিমবঙ্গ ভারত">
+        <h3>সরকারি পোর্টাল</h3><p class="panel-sub">প্রয়োজনীয় ওয়েবসাইটে দ্রুত যান</p>
+        <div class="link-list">
+          <a class="portal-link" href="https://wb.gov.in/" target="_blank" rel="noopener noreferrer"><span class="mini-icon">🏛️</span><span class="portal-text"><strong>পশ্চিমবঙ্গ সরকার</strong><small>রাজ্য সরকারের মূল পোর্টাল</small></span><span class="external">↗</span></a>
+          <a class="portal-link" href="https://www.india.gov.in/" target="_blank" rel="noopener noreferrer"><span class="mini-icon">🇮🇳</span><span class="portal-text"><strong>জাতীয় পোর্টাল</strong><small>ভারত সরকারের পরিষেবা</small></span><span class="external">↗</span></a>
+          <a class="portal-link" href="https://digilocker.gov.in/" target="_blank" rel="noopener noreferrer"><span class="mini-icon">📁</span><span class="portal-text"><strong>DigiLocker</strong><small>ডিজিটাল ডকুমেন্ট</small></span><span class="external">↗</span></a>
+          <a class="portal-link" href="https://www.passportindia.gov.in/" target="_blank" rel="noopener noreferrer"><span class="mini-icon">🛂</span><span class="portal-text"><strong>পাসপোর্ট সেবা</strong><small>পাসপোর্টের আবেদন</small></span><span class="external">↗</span></a>
+          <a class="portal-link" href="https://www.nvsp.in/" target="_blank" rel="noopener noreferrer"><span class="mini-icon">🗳️</span><span class="portal-text"><strong>ভোটার পরিষেবা</strong><small>ভোটার সংক্রান্ত তথ্য</small></span><span class="external">↗</span></a>
+        </div>
+      </section>
+      <section class="panel searchable" data-search="ডকুমেন্ট ইউটিলিটি টুলস pdf notes checklist calculator">
+        <h3>ডকুমেন্ট ও ইউটিলিটি</h3><p class="panel-sub">কাজের সুবিধার জন্য দরকারি টুল</p>
+        <div class="tool-list">
+          <button class="tool-button" data-tool="notes"><span class="mini-icon">📝</span><span class="portal-text"><strong>দ্রুত নোট</strong><small>তথ্য বা রিমাইন্ডার লিখুন</small></span></button>
+          <button class="tool-button" data-tool="checklist"><span class="mini-icon">☑️</span><span class="portal-text"><strong>কাগজপত্রের তালিকা</strong><small>নিজের চেকলিস্ট তৈরি করুন</small></span></button>
+          <button class="tool-button" data-tool="calculator"><span class="mini-icon">🧮</span><span class="portal-text"><strong>সাধারণ ক্যালকুলেটর</strong><small>দ্রুত হিসাব করুন</small></span></button>
+          <button class="tool-button" data-tool="print"><span class="mini-icon">🖨️</span><span class="portal-text"><strong>প্রিন্ট / PDF</strong><small>এই পেজ প্রিন্ট বা PDF করুন</small></span></button>
+        </div>
+      </section>
+      <section class="panel"><h3>🔒 নিরাপত্তার কথা</h3><p class="panel-sub" style="margin-bottom:0">এখানে আপনার আধার নম্বর, PAN, OTP বা পাসওয়ার্ড লিখবেন না। পরিচয়পত্রের কাজের জন্য শুধু সরকারি ওয়েবসাইট ব্যবহার করুন।</p></section>
+    </aside>
+  </div>
+  <footer class="footer"><span>© <span id="year"></span> আমার ড্যাশবোর্ড · আপনার ব্যক্তিগত সহায়ক</span><span>এটি একটি ব্যক্তিগত শর্টকাট ড্যাশবোর্ড; সরকারি ওয়েবসাইট নয়।</span></footer>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal">
+    <div class="modal-head"><h3 id="modalTitle">টুল</h3><button class="close" id="closeModal" aria-label="বন্ধ করুন">×</button></div>
+    <div id="modalContent"></div>
+  </div>
+</div>
+<script>
+(() => {
+  const $ = (s, root=document) => root.querySelector(s);
+  const $$ = (s, root=document) => [...root.querySelectorAll(s)];
+  const search = $('#searchInput');
+  const cards = $$('.searchable');
+  const empty = $('#emptyState');
+  let toastTimer;
+  function showToast(message) {
+    const toast = $('#toast');
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
+  }
+  function runSearch() {
+    const query = search.value.trim().toLocaleLowerCase('bn');
+    let visible = 0;
+    cards.forEach(item => {
+      const text = ((item.dataset.search || '') + ' ' + item.innerText).toLocaleLowerCase('bn');
+      const match = !query || text.includes(query);
+      item.style.display = match ? '' : 'none';
+      if (match && item.classList.contains('service-card')) visible++;
+    });
+    empty.classList.toggle('show', !!query && visible === 0);
+  }
+  search.addEventListener('input', runSearch);
+  $('#clearSearch').addEventListener('click', e => { e.preventDefault(); search.value=''; runSearch(); search.focus(); });
+  const now = new Date();
+  $('#todayDate').textContent = '📅 ' + new Intl.DateTimeFormat('bn-IN',{day:'numeric',month:'short',year:'numeric'}).format(now);
+  $('#year').textContent = now.getFullYear();
+
+  const backdrop = $('#modalBackdrop');
+  const modalTitle = $('#modalTitle');
+  const modalContent = $('#modalContent');
+  function openModal(title, html) {
+    modalTitle.textContent = title;
+    modalContent.innerHTML = html;
+    backdrop.classList.add('show');
+    const focusable = $('input,textarea,button', modalContent);
+    if (focusable) setTimeout(() => focusable.focus(), 30);
+  }
+  function closeModal() { backdrop.classList.remove('show'); }
+  $('#closeModal').addEventListener('click', closeModal);
+  backdrop.addEventListener('click', e => { if (e.target === backdrop) closeModal(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  // Notes and checklist are intentionally stored only in this browser.
+  function getSaved(key, fallback) {
+    try { const value = localStorage.getItem(key); return value === null ? fallback : value; }
+    catch { return fallback; }
+  }
+  function saveLocal(key, value) {
+    try { localStorage.setItem(key, value); showToast('এই ব্রাউজারে সংরক্ষণ করা হয়েছে।'); }
+    catch { showToast('সংরক্ষণ করা যায়নি। ব্রাউজারের স্টোরেজ সেটিংস দেখুন।'); }
+  }
+  function openTool(tool) {
+    if (tool === 'notes') {
+      openModal('আমার নোট', `<p>এই নোট শুধু এই ব্রাউজারেই সংরক্ষিত থাকবে। সংবেদনশীল তথ্য লিখবেন না।</p><div class="field"><label for="noteText">আপনার নোট</label><textarea id="noteText" rows="5" placeholder="এখানে লিখুন..."></textarea></div><button class="primary" id="saveNote">নোট সংরক্ষণ করুন</button>`);
+      $('#noteText').value = getSaved('banglaDashboardNotes','');
+      $('#saveNote').addEventListener('click', () => { saveLocal('banglaDashboardNotes', $('#noteText').value); closeModal(); });
+    } else if (tool === 'checklist') {
+      const saved = getSaved('banglaDashboardChecklist','পরিচয়পত্রের ফটোকপি\nঠিকানার প্রমাণ\nপাসপোর্ট সাইজ ছবি');
+      openModal('ডকুমেন্ট চেকলিস্ট', `<p>আপনার প্রয়োজন অনুযায়ী তালিকা বদলে সংরক্ষণ করুন।</p><div class="field"><label for="checkText">এক লাইনে একটি আইটেম</label><textarea id="checkText" rows="6" placeholder="এক লাইনে একটি ডকুমেন্ট"></textarea></div><button class="primary" id="saveChecklist">তালিকা সংরক্ষণ করুন</button><p class="muted-note">এটি একটি সাধারণ ব্যক্তিগত তালিকা—প্রয়োজনীয় কাগজপত্র সংশ্লিষ্ট সরকারি পোর্টালে যাচাই করুন।</p>`);
+      $('#checkText').value = saved;
+      $('#saveChecklist').addEventListener('click', () => { saveLocal('banglaDashboardChecklist', $('#checkText').value); closeModal(); });
+    } else if (tool === 'calculator') {
+      openModal('সাধারণ ক্যালকুলেটর', `<p>শুধু সংখ্যা ও সাধারণ গাণিতিক চিহ্ন ব্যবহার করুন।</p><div class="field"><label for="calcInput">হিসাব</label><input id="calcInput" inputmode="decimal" placeholder="যেমন: (1200 + 350) / 2"></div><button class="primary" id="calculate">হিসাব করুন</button><div class="field"><label for="calcResult">ফলাফল</label><input id="calcResult" readonly placeholder="ফলাফল এখানে দেখাবে"></div>`);
+      $('#calculate').addEventListener('click', () => {
+        const expression = $('#calcInput').value.trim();
+        if (!expression || !/^[0-9+\-*/().%\s]+$/.test(expression)) { $('#calcResult').value = 'সঠিক গাণিতিক হিসাব লিখুন'; return; }
+        try {
+          // Parse only arithmetic tokens; no identifiers or executable input are accepted.
+          const tokens = expression.match(/(?:\d+(?:\.\d*)?|\.\d+)|[()+\-*/%]/g) || [];
+          if (tokens.join('').replace(/\s/g,'') !== expression.replace(/\s/g,'') || tokens.length > 100) throw Error();
+          const result = Function('"use strict"; return (' + expression + ')')();
+          $('#calcResult').value = Number.isFinite(result) ? String(result) : 'হিসাব করা যায়নি';
+        } catch { $('#calcResult').value = 'হিসাবটি পরীক্ষা করুন'; }
+      });
+    } else if (tool === 'print') {
+      closeModal(); window.print();
+    }
+  }
+  $$('[data-tool]').forEach(button => button.addEventListener('click', () => openTool(button.dataset.tool)));
+  $('#helpBtn').addEventListener('click', () => openModal('ড্যাশবোর্ড ব্যবহার করবেন যেভাবে', `<p>• সার্চ বারে কার্ড, পোর্টাল বা টুলের নাম লিখুন।<br>• কার্ডের “পোর্টাল খুলুন” লিংকে ক্লিক করে সংশ্লিষ্ট সাইটে যান।<br>• নোট ও চেকলিস্ট এই ব্রাউজারে সংরক্ষিত হয়।<br>• সরকারি কাজের আগে ওয়েবসাইটের ঠিকানা যাচাই করুন।</p><p class="muted-note">এই ড্যাশবোর্ড কোনো সরকারি সংস্থার সঙ্গে যুক্ত নয় এবং সরকারি পরিষেবা প্রদান করে না।</p>`));
+})();
+</script>
+</body>
+</html>
