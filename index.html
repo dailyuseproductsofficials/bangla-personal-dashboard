@@ -4,7 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#f4f7fb">
-<title>আমার ড্যাশবোর্ড | ব্যক্তিগত সহায়ক</title>
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>আমার ড্যাশবোর্ড | নিরাপদ ব্যক্তিগত সহায়ক</title>
 <style>
 :root{--bg:#f4f7fb;--surface:#fff;--ink:#17243a;--muted:#718096;--line:#e6ebf2;--blue:#4263eb;--blue-soft:#eef2ff;--teal:#0f9d8a;--shadow:0 10px 28px rgba(25,45,85,.06);--radius:20px}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Noto Sans Bengali","Hind Siliguri",sans-serif;line-height:1.55}
@@ -108,10 +109,10 @@ button,input{font:inherit}button,a{ -webkit-tap-highlight-color:transparent}a{co
           <button class="tool-button" data-tool="print"><span class="mini-icon">🖨️</span><span class="portal-text"><strong>প্রিন্ট / PDF</strong><small>এই পেজ প্রিন্ট বা PDF করুন</small></span></button>
         </div>
       </section>
-      <section class="panel"><h3>🔒 নিরাপত্তার কথা</h3><p class="panel-sub" style="margin-bottom:0">এখানে আপনার আধার নম্বর, PAN, OTP বা পাসওয়ার্ড লিখবেন না। পরিচয়পত্রের কাজের জন্য শুধু সরকারি ওয়েবসাইট ব্যবহার করুন।</p></section>
+      <section class="panel"><h3>🔒 নিরাপত্তার কথা</h3><p class="panel-sub" style="margin-bottom:0">এখানে আধার নম্বর, PAN, OTP, পাসওয়ার্ড, ব্যাংক তথ্য বা পরিচয়পত্রের ছবি রাখবেন না। এই ড্যাশবোর্ডে লগইন বা সার্ভার-সুরক্ষিত স্টোরেজ নেই। পরিচয়পত্রের কাজের জন্য সরকারি ওয়েবসাইট ব্যবহার করুন।</p></section>
     </aside>
   </div>
-  <footer class="footer"><span>© <span id="year"></span> আমার ড্যাশবোর্ড · আপনার ব্যক্তিগত সহায়ক</span><span>এটি একটি ব্যক্তিগত শর্টকাট ড্যাশবোর্ড; সরকারি ওয়েবসাইট নয়।</span></footer>
+  <footer class="footer"><span>© <span id="year"></span> আমার ড্যাশবোর্ড · আপনার ব্যক্তিগত সহায়ক</span><span>এটি একটি স্ট্যাটিক শর্টকাট ড্যাশবোর্ড; সরকারি ওয়েবসাইট নয়। কোনো সাইটকে ১০০% হ্যাক-প্রুফ নিশ্চিত করা যায় না।</span></footer>
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -179,7 +180,7 @@ button,input{font:inherit}button,a{ -webkit-tap-highlight-color:transparent}a{co
   }
   function openTool(tool) {
     if (tool === 'notes') {
-      openModal('আমার নোট', `<p>এই নোট শুধু এই ব্রাউজারেই সংরক্ষিত থাকবে। সংবেদনশীল তথ্য লিখবেন না।</p><div class="field"><label for="noteText">আপনার নোট</label><textarea id="noteText" rows="5" placeholder="এখানে লিখুন..."></textarea></div><button class="primary" id="saveNote">নোট সংরক্ষণ করুন</button>`);
+      openModal('আমার নোট', `<p>নোট এই ব্রাউজারের Local Storage-এ থাকে; একই ডিভাইস/ব্রাউজার ব্যবহারকারী তা দেখতে পারেন। সংবেদনশীল তথ্য লিখবেন না।</p><div class="field"><label for="noteText">আপনার নোট</label><textarea id="noteText" rows="5" placeholder="এখানে লিখুন..."></textarea></div><button class="primary" id="saveNote">নোট সংরক্ষণ করুন</button>`);
       $('#noteText').value = getSaved('banglaDashboardNotes','');
       $('#saveNote').addEventListener('click', () => { saveLocal('banglaDashboardNotes', $('#noteText').value); closeModal(); });
     } else if (tool === 'checklist') {
@@ -188,17 +189,22 @@ button,input{font:inherit}button,a{ -webkit-tap-highlight-color:transparent}a{co
       $('#checkText').value = saved;
       $('#saveChecklist').addEventListener('click', () => { saveLocal('banglaDashboardChecklist', $('#checkText').value); closeModal(); });
     } else if (tool === 'calculator') {
-      openModal('সাধারণ ক্যালকুলেটর', `<p>শুধু সংখ্যা ও সাধারণ গাণিতিক চিহ্ন ব্যবহার করুন।</p><div class="field"><label for="calcInput">হিসাব</label><input id="calcInput" inputmode="decimal" placeholder="যেমন: (1200 + 350) / 2"></div><button class="primary" id="calculate">হিসাব করুন</button><div class="field"><label for="calcResult">ফলাফল</label><input id="calcResult" readonly placeholder="ফলাফল এখানে দেখাবে"></div>`);
+      openModal('সাধারণ ক্যালকুলেটর', `<p>দুটি সংখ্যা দিয়ে সাধারণ হিসাব করুন।</p><div class="field"><label for="calcA">প্রথম সংখ্যা</label><input id="calcA" inputmode="decimal" type="number" step="any" placeholder="যেমন: 1200"></div><div class="field"><label for="calcOp">হিসাবের ধরন</label><select id="calcOp" style="width:100%;border:1px solid var(--line);border-radius:11px;padding:11px 12px"><option value="+">যোগ (+)</option><option value="-">বিয়োগ (−)</option><option value="*">গুণ (×)</option><option value="/">ভাগ (÷)</option><option value="%">ভাগশেষ (%)</option></select></div><div class="field"><label for="calcB">দ্বিতীয় সংখ্যা</label><input id="calcB" inputmode="decimal" type="number" step="any" placeholder="যেমন: 350"></div><button class="primary" id="calculate">হিসাব করুন</button><div class="field"><label for="calcResult">ফলাফল</label><input id="calcResult" readonly placeholder="ফলাফল এখানে দেখাবে"></div>`);
       $('#calculate').addEventListener('click', () => {
-        const expression = $('#calcInput').value.trim();
-        if (!expression || !/^[0-9+\-*/().%\s]+$/.test(expression)) { $('#calcResult').value = 'সঠিক গাণিতিক হিসাব লিখুন'; return; }
-        try {
-          // Parse only arithmetic tokens; no identifiers or executable input are accepted.
-          const tokens = expression.match(/(?:\d+(?:\.\d*)?|\.\d+)|[()+\-*/%]/g) || [];
-          if (tokens.join('').replace(/\s/g,'') !== expression.replace(/\s/g,'') || tokens.length > 100) throw Error();
-          const result = Function('"use strict"; return (' + expression + ')')();
-          $('#calcResult').value = Number.isFinite(result) ? String(result) : 'হিসাব করা যায়নি';
-        } catch { $('#calcResult').value = 'হিসাবটি পরীক্ষা করুন'; }
+        const aText = $('#calcA').value.trim(), bText = $('#calcB').value.trim();
+        const a = Number(aText), b = Number(bText), op = $('#calcOp').value;
+        if (!aText || !bText || !Number.isFinite(a) || !Number.isFinite(b)) { $('#calcResult').value = 'দুটি সঠিক সংখ্যা লিখুন'; return; }
+        if (op === '/' && b === 0) { $('#calcResult').value = 'শূন্য দিয়ে ভাগ করা যায় না'; return; }
+        let result;
+        switch (op) {
+          case '+': result = a + b; break;
+          case '-': result = a - b; break;
+          case '*': result = a * b; break;
+          case '/': result = a / b; break;
+          case '%': result = a % b; break;
+          default: $('#calcResult').value = 'হিসাবের ধরন সঠিক নয়'; return;
+        }
+        $('#calcResult').value = Number.isFinite(result) ? String(result) : 'হিসাব করা যায়নি';
       });
     } else if (tool === 'print') {
       closeModal(); window.print();
