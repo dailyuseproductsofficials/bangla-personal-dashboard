@@ -26,6 +26,20 @@ button,input{font:inherit}button,a{ -webkit-tap-highlight-color:transparent}a{co
 @media(max-width:760px){.layout{grid-template-columns:1fr}.sidebar{grid-template-columns:repeat(2,minmax(0,1fr))}.sidebar .panel:first-child{grid-column:1/-1}.quick-stats{grid-template-columns:1fr 1fr}.quick-stats .stat:last-child{grid-column:1/-1}.hero{padding:25px 22px}.app{padding:18px}.date-chip{display:none}}
 @media(max-width:520px){.app{padding:14px}.topbar{margin-bottom:18px}.brand h1{font-size:17px}.brand-mark{width:42px;height:42px}.cards{grid-template-columns:1fr}.service-card{min-height:174px}.sidebar{grid-template-columns:1fr}.sidebar .panel:first-child{grid-column:auto}.hero{border-radius:21px}.hero p{font-size:13px}.search-wrap input{height:54px}.section-heading{margin-top:22px}.quick-stats{grid-template-columns:1fr}.quick-stats .stat:last-child{grid-column:auto}.footer{flex-direction:column}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+
+.custom-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:26px 0 14px}
+.custom-toolbar h3{margin:0;font-size:18px}.custom-toolbar p{margin:3px 0 0;color:var(--muted);font-size:13px}
+.custom-add{border:0;border-radius:12px;padding:11px 14px;background:linear-gradient(135deg,#4263eb,#6b7df5);color:#fff;font-weight:750;cursor:pointer;box-shadow:0 8px 18px #4263eb30;white-space:nowrap}
+.custom-add:hover{filter:brightness(1.04);transform:translateY(-1px)}
+.custom-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.custom-card{min-width:0;background:linear-gradient(145deg,#fff,#fbfcff);border:1px solid var(--line);border-radius:18px;padding:17px;box-shadow:0 8px 24px rgba(25,45,85,.055);display:flex;align-items:center;gap:12px;transition:transform .18s,box-shadow .18s,border-color .18s}
+.custom-card:hover{transform:translateY(-3px);box-shadow:0 15px 32px rgba(25,45,85,.10);border-color:#d5defd}
+.custom-card-icon{width:44px;height:44px;flex:0 0 44px;border-radius:14px;background:linear-gradient(135deg,#edf1ff,#e7f8f4);display:grid;place-items:center;font-size:21px}
+.custom-card-info{min-width:0;flex:1}.custom-card-info strong{display:block;font-size:14px;overflow-wrap:anywhere}.custom-card-info small{display:block;color:var(--muted);font-size:12px;overflow-wrap:anywhere}
+.custom-card-actions{display:flex;align-items:center;gap:7px}.custom-open{color:var(--blue);font-weight:750;font-size:13px;white-space:nowrap}.custom-delete{border:1px solid var(--line);background:#fff;color:#8994a6;border-radius:9px;width:30px;height:30px;cursor:pointer}
+.field select{font:inherit}
+@media(max-width:520px){.custom-grid{grid-template-columns:1fr}.custom-toolbar{align-items:flex-start}.custom-add{padding:10px 11px;font-size:13px}}
+
 </style>
 </head>
 <body>
@@ -82,6 +96,14 @@ button,input{font:inherit}button,a{ -webkit-tap-highlight-color:transparent}a{co
           <div class="card-footer"><span>নিজের তালিকা</span><button class="open-link tool-action" data-tool="checklist">তালিকা খুলুন ↗</button></div>
         </article>
       </section>
+
+      <div class="custom-toolbar">
+        <div><h3>আমার পছন্দের লিংক</h3><p>নিজের যেকোনো ওয়েবসাইট যোগ করুন</p></div>
+        <button class="custom-add" id="addCustomLink">＋ লিংক যোগ</button>
+      </div>
+      <section class="custom-grid" id="customLinks" aria-live="polite"></section>
+      <div class="empty" id="customEmpty">এখনও কোনো ব্যক্তিগত লিংক যোগ করেননি। “＋ লিংক যোগ” চাপুন।</div>
+
       <div class="quick-stats">
         <div class="stat"><div class="stat-icon">🔗</div><div><strong>৪টি</strong><small>প্রধান পরিষেবা</small></div></div>
         <div class="stat"><div class="stat-icon">🧰</div><div><strong>২টি</strong><small>ব্যক্তিগত টুল</small></div></div>
@@ -137,16 +159,31 @@ button,input{font:inherit}button,a{ -webkit-tap-highlight-color:transparent}a{co
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
   }
+  function normalizeSearch(value) {
+    return String(value || '').toLocaleLowerCase('bn')
+      .normalize('NFKC')
+      .replace(/[০-৯]/g, digit => String('০১২৩৪৫৬৭৮৯'.indexOf(digit)))
+      .replace(/[অআ]/g, 'আ')
+      .replace(/য়/g, 'য়')
+      .replace(/\s+/g, ' ').trim();
+  }
   function runSearch() {
-    const query = search.value.trim().toLocaleLowerCase('bn');
+    const query = normalizeSearch(search.value);
     let visible = 0;
     cards.forEach(item => {
-      const text = ((item.dataset.search || '') + ' ' + item.innerText).toLocaleLowerCase('bn');
+      const text = normalizeSearch((item.dataset.search || '') + ' ' + item.innerText);
       const match = !query || text.includes(query);
       item.style.display = match ? '' : 'none';
       if (match && item.classList.contains('service-card')) visible++;
     });
+    $$('#customLinks .custom-card').forEach(item => {
+      const text = normalizeSearch(item.dataset.search || item.innerText);
+      const match = !query || text.includes(query);
+      item.style.display = match ? '' : 'none';
+      if (match) visible++;
+    });
     empty.classList.toggle('show', !!query && visible === 0);
+    $('#customEmpty').classList.toggle('show', !getCustomLinks().length);
   }
   search.addEventListener('input', runSearch);
   $('#clearSearch').addEventListener('click', e => { e.preventDefault(); search.value=''; runSearch(); search.focus(); });
@@ -178,6 +215,93 @@ button,input{font:inherit}button,a{ -webkit-tap-highlight-color:transparent}a{co
     try { localStorage.setItem(key, value); showToast('এই ব্রাউজারে সংরক্ষণ করা হয়েছে।'); }
     catch { showToast('সংরক্ষণ করা যায়নি। ব্রাউজারের স্টোরেজ সেটিংস দেখুন।'); }
   }
+  // Custom links are stored only in this browser. Only http(s) URLs are accepted.
+  const customKey = 'banglaDashboardCustomLinksV1';
+  function getCustomLinks() {
+    try {
+      const value = JSON.parse(localStorage.getItem(customKey) || '[]');
+      return Array.isArray(value) ? value.filter(x => x && typeof x.title === 'string' && typeof x.url === 'string') : [];
+    } catch { return []; }
+  }
+  function safeWebUrl(raw) {
+    try {
+      const url = new URL(String(raw).trim());
+      return (url.protocol === 'https:' || url.protocol === 'http:') ? url.href : null;
+    } catch { return null; }
+  }
+  function renderCustomLinks() {
+    const host = $('#customLinks');
+    host.replaceChildren();
+    const links = getCustomLinks();
+    links.forEach((item, index) => {
+      const card = document.createElement('article');
+      card.className = 'custom-card searchable';
+      card.dataset.search = [item.title, item.url, item.description || '', item.keywords || ''].join(' ');
+      const icon = document.createElement('span');
+      icon.className = 'custom-card-icon';
+      icon.textContent = item.icon || '🔗';
+      const info = document.createElement('span');
+      info.className = 'custom-card-info';
+      const title = document.createElement('strong');
+      title.textContent = item.title;
+      const desc = document.createElement('small');
+      desc.textContent = item.description || item.url;
+      info.append(title, desc);
+      const actions = document.createElement('span');
+      actions.className = 'custom-card-actions';
+      const link = document.createElement('a');
+      link.className = 'custom-open';
+      link.href = item.url;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.textContent = 'খুলুন ↗';
+      const del = document.createElement('button');
+      del.className = 'custom-delete';
+      del.type = 'button';
+      del.title = 'লিংক মুছুন';
+      del.setAttribute('aria-label', item.title + ' লিংক মুছুন');
+      del.textContent = '×';
+      del.addEventListener('click', () => {
+        const current = getCustomLinks();
+        current.splice(index, 1);
+        try { localStorage.setItem(customKey, JSON.stringify(current)); renderCustomLinks(); runSearch(); showToast('লিংক মুছে ফেলা হয়েছে।'); }
+        catch { showToast('পরিবর্তন সংরক্ষণ করা যায়নি।'); }
+      });
+      actions.append(link, del);
+      card.append(icon, info, actions);
+      host.append(card);
+    });
+    $('#customEmpty').classList.toggle('show', links.length === 0);
+  }
+  function openCustomLinkForm() {
+    openModal('নিজের লিংক যোগ করুন', `<p>লিংকটি আপনার এই ব্রাউজারেই সংরক্ষিত হবে। শুধু বিশ্বাসযোগ্য ওয়েবসাইটের ঠিকানা যোগ করুন।</p>
+      <div class="field"><label for="customTitle">লিংকের নাম / Name *</label><input id="customTitle" maxlength="70" required placeholder="যেমন: আমার ব্যাংক / My Bank"></div>
+      <div class="field"><label for="customUrl">ওয়েবসাইটের ঠিকানা / URL *</label><input id="customUrl" type="url" maxlength="500" required placeholder="https://example.com"></div>
+      <div class="field"><label for="customDescription">ছোট বর্ণনা / Description</label><input id="customDescription" maxlength="120" placeholder="এই লিংকটি কী কাজে লাগে"></div>
+      <div class="field"><label for="customKeywords">সার্চ শব্দ / Search keywords</label><input id="customKeywords" maxlength="160" placeholder="বাংলা ও English শব্দ, যেমন ব্যাংক bank"></div>
+      <div class="field"><label for="customIcon">আইকন / Emoji</label><input id="customIcon" maxlength="8" value="🔗" placeholder="🔗"></div>
+      <button class="primary" id="saveCustomLink">লিংক সংরক্ষণ করুন</button>
+      <p class="muted-note">javascript:, data: বা অন্য অ-HTTP ঠিকানা গ্রহণ করা হবে না। এখানে পাসওয়ার্ড বা গোপন তথ্য দেবেন না।</p>`);
+    $('#saveCustomLink').addEventListener('click', () => {
+      const title = $('#customTitle').value.trim();
+      const url = safeWebUrl($('#customUrl').value);
+      const description = $('#customDescription').value.trim();
+      const keywords = $('#customKeywords').value.trim();
+      const icon = $('#customIcon').value.trim() || '🔗';
+      if (!title) { showToast('লিংকের নাম লিখুন।'); $('#customTitle').focus(); return; }
+      if (!url) { showToast('সঠিক http:// বা https:// লিংক দিন।'); $('#customUrl').focus(); return; }
+      const links = getCustomLinks();
+      if (links.length >= 100) { showToast('সর্বোচ্চ ১০০টি লিংক যোগ করা যাবে।'); return; }
+      links.push({title, url, description, keywords, icon});
+      try {
+        localStorage.setItem(customKey, JSON.stringify(links));
+        renderCustomLinks(); runSearch(); closeModal(); showToast('আপনার লিংক যোগ হয়েছে।');
+      } catch { showToast('সংরক্ষণ করা যায়নি। ব্রাউজারের স্টোরেজ পরীক্ষা করুন।'); }
+    });
+  }
+  $('#addCustomLink').addEventListener('click', openCustomLinkForm);
+  renderCustomLinks();
+
   function openTool(tool) {
     if (tool === 'notes') {
       openModal('আমার নোট', `<p>নোট এই ব্রাউজারের Local Storage-এ থাকে; একই ডিভাইস/ব্রাউজার ব্যবহারকারী তা দেখতে পারেন। সংবেদনশীল তথ্য লিখবেন না।</p><div class="field"><label for="noteText">আপনার নোট</label><textarea id="noteText" rows="5" placeholder="এখানে লিখুন..."></textarea></div><button class="primary" id="saveNote">নোট সংরক্ষণ করুন</button>`);
@@ -211,7 +335,7 @@ button,input{font:inherit}button,a{ -webkit-tap-highlight-color:transparent}a{co
     }
   }
   $$('[data-tool]').forEach(button => button.addEventListener('click', () => openTool(button.dataset.tool)));
-  $('#helpBtn').addEventListener('click', () => openModal('ড্যাশবোর্ড ব্যবহার করবেন যেভাবে', `<p>• সার্চ বারে কার্ড, পোর্টাল বা টুলের নাম লিখুন।<br>• কার্ডের “পোর্টাল খুলুন” লিংকে ক্লিক করে সংশ্লিষ্ট সাইটে যান।<br>• নোট ও চেকলিস্ট এই ব্রাউজারে সংরক্ষিত হয়।<br>• সরকারি কাজের আগে ওয়েবসাইটের ঠিকানা যাচাই করুন।</p><p class="muted-note">এই ড্যাশবোর্ড কোনো সরকারি সংস্থার সঙ্গে যুক্ত নয় এবং সরকারি পরিষেবা প্রদান করে না।</p>`));
+  $('#helpBtn').addEventListener('click', () => openModal('ড্যাশবোর্ড ব্যবহার করবেন যেভাবে', `<p>• সার্চ বারে কার্ড, পোর্টাল বা টুলের নাম লিখুন।<br>• কার্ডের “পোর্টাল খুলুন” লিংকে ক্লিক করে সংশ্লিষ্ট সাইটে যান।<br>• নোট, চেকলিস্ট ও ব্যক্তিগত লিংক এই ব্রাউজারে সংরক্ষিত হয়।<br>• সরকারি কাজের আগে ওয়েবসাইটের ঠিকানা যাচাই করুন।</p><p class="muted-note">এই ড্যাশবোর্ড কোনো সরকারি সংস্থার সঙ্গে যুক্ত নয় এবং সরকারি পরিষেবা প্রদান করে না।</p>`));
 })();
 </script>
 </body>
