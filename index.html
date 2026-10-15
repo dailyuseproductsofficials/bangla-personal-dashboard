@@ -102,6 +102,14 @@ button,input{font:inherit}button,a{ -webkit-tap-highlight-color:transparent}a{co
       </div>
       <section class="custom-grid" id="adminCustomLinks" aria-live="polite"></section>
       <div class="empty" id="adminCustomEmpty">অ্যাডমিন এখনো কোনো লিংক প্রকাশ করেননি।</div>
+
+      <div class="custom-toolbar">
+        <div><h3>আমার পছন্দের লিংক</h3><p>নিজের যেকোনো ওয়েবসাইট যোগ করুন</p></div>
+        <button class="custom-add" id="addCustomLink">＋ লিংক যোগ</button>
+      </div>
+      <section class="custom-grid" id="customLinks" aria-live="polite"></section>
+      <div class="empty" id="customEmpty">এখনও কোনো ব্যক্তিগত লিংক যোগ করেননি। “＋ লিংক যোগ” চাপুন।</div>
+
       <div class="quick-stats">
         <div class="stat"><div class="stat-icon">🔗</div><div><strong>৪টি</strong><small>প্রধান পরিষেবা</small></div></div>
         <div class="stat"><div class="stat-icon">🧰</div><div><strong>২টি</strong><small>ব্যক্তিগত টুল</small></div></div>
@@ -340,7 +348,7 @@ button,input{font:inherit}button,a{ -webkit-tap-highlight-color:transparent}a{co
 <script type="module">
   // Public links managed from Admin Panel; personal links remain in this browser only.
   import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+  import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyAPvK_clkRscLgb4QfOyLVMKypd2pNrBlw",
@@ -392,19 +400,55 @@ button,input{font:inherit}button,a{ -webkit-tap-highlight-color:transparent}a{co
     empty.classList.toggle('show', validItems.length === 0);
     if (!validItems.length) empty.textContent = 'অ্যাডমিন এখনো কোনো লিংক প্রকাশ করেননি।';
   }
-  async function loadAdminLinks() {
-    try {
-      const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-      const db = getFirestore(app);
-      const snap = await getDoc(doc(db, 'siteContent', 'customLinks'));
+  function reorderChildren(container, ids, selector, idForElement) {
+    if (!container || !Array.isArray(ids)) return;
+    const elements = [...container.querySelectorAll(selector)];
+    const byId = new Map(elements.map(el => [idForElement(el), el]));
+    const ordered = [];
+    ids.forEach(id => { if (byId.has(id)) { ordered.push(byId.get(id)); byId.delete(id); } });
+    byId.forEach(el => ordered.push(el));
+    ordered.forEach(el => container.appendChild(el));
+  }
+
+  function applyLayout(groups) {
+    if (!groups || typeof groups !== 'object') return;
+    // Built-in cards follow the saved order from Layout Manager.
+    reorderChildren(document.getElementById('services'), groups.services, '.service-card', el => {
+      const title = el.querySelector('h4')?.textContent?.trim() || '';
+      return ({'রেশন কার্ড':'ration','PAN কার্ড':'pan','ভোটার কার্ড':'voter','আধার কার্ড':'aadhaar'})[title] || '';
+    });
+    const toolHeading = [...document.querySelectorAll('.section-heading h3')].find(el => el.textContent.trim() === 'দ্রুত ব্যবহারের টুলস');
+    const toolContainer = toolHeading?.parentElement?.nextElementSibling;
+    reorderChildren(toolContainer, groups.tools, '.service-card', el => {
+      const title = el.querySelector('h4')?.textContent?.trim() || '';
+      return ({'আমার নোট':'notes','ডকুমেন্ট চেকলিস্ট':'checklist'})[title] || '';
+    });
+    const sideIds = {'সরকারি পোর্টাল':'government-portals','ডকুমেন্ট ও ইউটিলিটি':'utility-panel','🔒 নিরাপত্তার কথা':'security-panel'};
+    const sidebar = document.querySelector('.sidebar');
+    reorderChildren(sidebar, groups.sidebar, '.panel', el => {
+      const title = el.querySelector('h3')?.textContent?.trim() || '';
+      return sideIds[title] || '';
+    });
+  }
+
+  try {
+    const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    onSnapshot(doc(db, 'siteContent', 'customLinks'), snap => {
       renderAdminLinks(snap.exists() ? snap.data().items : []);
-    } catch (error) {
+    }, error => {
       console.error('Admin links load failed:', error);
       empty.classList.add('show');
       empty.textContent = 'অ্যাডমিনের লিংক লোড করা যায়নি। ইন্টারনেট ও Firestore Rules পরীক্ষা করুন।';
-    }
+    });
+    onSnapshot(doc(db, 'siteContent', 'cardLayout'), snap => {
+      applyLayout(snap.exists() ? (snap.data().groups || {}) : {});
+    }, error => console.error('Card layout load failed:', error));
+  } catch (error) {
+    console.error('Firebase initialization failed:', error);
+    empty.classList.add('show');
+    empty.textContent = 'Firebase চালু করা যায়নি। পেজ রিফ্রেশ করে আবার চেষ্টা করুন।';
   }
-  loadAdminLinks();
 </script>
 
 </body>
