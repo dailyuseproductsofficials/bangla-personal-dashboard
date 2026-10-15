@@ -1,7 +1,70 @@
-<!doctype html><html lang="bn"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Card Layout Manager</title><style>body{font-family:system-ui,'Noto Sans Bengali',sans-serif;background:#f4f7fb;color:#17243a;margin:0;padding:22px}.wrap{max-width:850px;margin:auto}.box{background:white;border:1px solid #e2e8f0;border-radius:16px;padding:20px;margin:14px 0}input,button{font:inherit;padding:10px;border-radius:9px;border:1px solid #d7deea}input{display:block;width:100%;box-sizing:border-box;margin:8px 0}button{cursor:pointer;background:#4263eb;color:white;border:0;margin:3px}.muted{color:#68758b;font-size:13px}.item{display:flex;align-items:center;gap:8px;padding:10px;border:1px solid #e1e7f0;border-radius:10px;margin:8px 0;background:#fff}.item[draggable=true]{cursor:grab}.item span{flex:1}.item button{padding:6px 10px}.hidden{display:none}.status{padding:10px;background:#edf8f6;border-radius:8px;white-space:pre-wrap}</style></head><body><div class="wrap"><h1>Card Layout Manager</h1><p class="muted">শুধু অনুমোদিত Admin লগইন করতে পারবেন। কার্ড টেনে সাজান অথবা ↑ / ↓ বোতাম ব্যবহার করুন। Save করলে সবার ওয়েবসাইটে এই ক্রম দেখা যাবে।</p><section class="box" id="login"><h2>Admin Login</h2><input id="email" type="email" placeholder="Admin email"><input id="password" type="password" placeholder="Password"><button id="loginBtn">Login</button><p id="loginStatus" class="muted"></p></section><section class="box hidden" id="manager"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><h2>কার্ড সাজান</h2><button id="logoutBtn">Logout</button></div><p class="muted">প্রতিটি গ্রুপের মধ্যে কার্ডের ক্রম পরিবর্তন করুন। কার্ড অন্য গ্রুপে স্থানান্তর হয় না, যাতে সাইটের ডিজাইন ঠিক থাকে।</p><div id="groups"></div><button id="saveBtn">Save Layout to Firebase</button><p id="status" class="status">Firebase-এর সঙ্গে সংযোগের অপেক্ষায়…</p></section></div><script type="module">
-import {initializeApp,getApps} from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
-import {getAuth,signInWithEmailAndPassword,onAuthStateChanged,signOut} from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
-import {getFirestore,doc,getDoc,setDoc,serverTimestamp} from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
+
+<!doctype html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Card Layout Manager</title>
+<style>
+body{font-family:system-ui,'Noto Sans Bengali',sans-serif;background:#f4f7fb;color:#17243a;margin:0;padding:22px}
+.wrap{max-width:900px;margin:auto}
+.box{background:white;border:1px solid #e2e8f0;border-radius:16px;padding:20px;margin:14px 0}
+input,button{font:inherit;padding:10px;border-radius:9px;border:1px solid #d7deea}
+input{display:block;width:100%;box-sizing:border-box;margin:8px 0}
+button{cursor:pointer;background:#4263eb;color:white;border:0;margin:3px}
+button:disabled{opacity:.4;cursor:not-allowed}
+.muted{color:#68758b;font-size:13px}
+.item{display:flex;align-items:center;gap:8px;padding:10px;border:1px solid #e1e7f0;border-radius:10px;margin:8px 0;background:#fff}
+.item[draggable=true]{cursor:grab}
+.item span{flex:1;overflow-wrap:anywhere}
+.item button{padding:6px 10px}
+.hidden{display:none}
+.status{padding:10px;background:#edf8f6;border-radius:8px;white-space:pre-wrap;overflow-wrap:anywhere}
+.card-list{min-height:58px;border:2px dashed #d7deea;border-radius:12px;padding:8px}
+.card-list.drag-target{background:#edf2ff;border-color:#4263eb}
+.item.dragging{opacity:.4}
+.group-title{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.group-title h3{margin:8px 0}
+.small{font-size:12px;color:#68758b}
+@media(max-width:520px){body{padding:10px}.box{padding:12px}.item{gap:4px;flex-wrap:wrap}.item span{min-width:100px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Card Layout Manager</h1>
+<p class="muted">কার্ড টেনে অন্য লিস্টে নিয়ে যান অথবা ↑ / ↓ বোতাম ব্যবহার করুন। Save করলে কার্ডের গ্রুপ ও ক্রম Firebase-এ সংরক্ষিত হবে।</p>
+
+<section class="box" id="login">
+<h2>Admin Login</h2>
+<input id="email" type="email" placeholder="Admin email" autocomplete="username">
+<input id="password" type="password" placeholder="Password" autocomplete="current-password">
+<button id="loginBtn">Login</button>
+<p id="loginStatus" class="muted"></p>
+</section>
+
+<section class="box hidden" id="manager">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+<h2>কার্ড সাজান</h2>
+<button id="logoutBtn">Logout</button>
+</div>
+<p class="muted">যে লিস্টে কার্ড নিতে চান, সেই লিস্টে কার্ডটি টেনে ছেড়ে দিন। অন্য লিস্টে নেওয়ার পরও Save করতে হবে।</p>
+<div id="groups"></div>
+<button id="saveBtn">Save Layout to Firebase</button>
+<p id="status" class="status">Firebase-এর সঙ্গে সংযোগের অপেক্ষায়…</p>
+</section>
+</div>
+
+<script type="module">
+import {initializeApp,getApps}
+from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
+
+import {
+getAuth,signInWithEmailAndPassword,onAuthStateChanged,signOut
+} from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
+
+import {
+getFirestore,doc,getDoc,setDoc,serverTimestamp
+} from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
 
 const firebaseConfig = {
   apiKey: "AIzaSyAPvK_clkRscLgb4QfOyLVMKypd2pNrBlw",
@@ -12,11 +75,374 @@ const firebaseConfig = {
   appId: "1:885984909040:web:79ba997fbc99c32ca09435",
   measurementId: "G-5S6SNNY97L"
 };
-const app=getApps().length?getApps()[0]:initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
-const catalog={services:[['ration','রেশন কার্ড'],['pan','PAN কার্ড'],['voter','ভোটার কার্ড'],['aadhaar','আধার কার্ড']],tools:[['notes','আমার নোট'],['checklist','ডকুমেন্ট চেকলিস্ট']],sidebar:[['government-portals','সরকারি পোর্টাল'],['utility-panel','ডকুমেন্ট ও ইউটিলিটি'],['security-panel','নিরাপত্তার কথা']]};
-const names={services:'গুরুত্বপূর্ণ কার্ড',tools:'দ্রুত ব্যবহারের টুলস',sidebar:'সাইডবার প্যানেল'};let order=Object.fromEntries(Object.entries(catalog).map(([k,v])=>[k,v.map(x=>x[0])]));
-const $=id=>document.getElementById(id);function status(t){$('status').textContent=t}function render(){const host=$('groups');host.replaceChildren();for(const [group,ids] of Object.entries(order)){const section=document.createElement('div');section.className='box';const h=document.createElement('h3');h.textContent=names[group];section.append(h);const list=document.createElement('div');list.dataset.group=group;ids.forEach((id,index)=>{const label=catalog[group].find(x=>x[0]===id)?.[1]||id;const row=document.createElement('div');row.className='item';row.draggable=true;row.dataset.id=id;const grip=document.createElement('b');grip.textContent='⠿';const text=document.createElement('span');text.textContent=label;row.append(grip,text);for(const [symbol,delta] of [['↑',-1],['↓',1]]){const b=document.createElement('button');b.type='button';b.textContent=symbol;b.disabled=(delta<0?index===0:index===ids.length-1);b.onclick=()=>move(group,index,delta);row.append(b)}row.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/plain',id);e.dataTransfer.effectAllowed='move'});row.addEventListener('dragover',e=>{e.preventDefault();row.style.outline='2px dashed #4263eb'});row.addEventListener('dragleave',()=>row.style.outline='');row.addEventListener('drop',e=>{e.preventDefault();row.style.outline='';const from=e.dataTransfer.getData('text/plain');const arr=order[group];if(!arr.includes(from))return;arr.splice(arr.indexOf(from),1);arr.splice(arr.indexOf(id),0,from);render()});list.append(row)});section.append(list);host.append(section)}}function move(g,i,d){const a=order[g],j=i+d;if(j<0||j>=a.length)return;[a[i],a[j]]=[a[j],a[i]];render()}
-$('loginBtn').onclick=async()=>{try{await signInWithEmailAndPassword(auth,$('email').value.trim(),$('password').value);$('loginStatus').textContent='লগইন সফল';}catch(e){$('loginStatus').textContent='লগইন ব্যর্থ: '+e.message}};$('logoutBtn').onclick=()=>signOut(auth);onAuthStateChanged(auth,async user=>{if(!user){$('login').classList.remove('hidden');$('manager').classList.add('hidden');return}$('login').classList.add('hidden');$('manager').classList.remove('hidden');try{const snap=await getDoc(doc(db,'siteContent','cardLayout'));if(snap.exists()){const saved=snap.data().groups||{};for(const g of Object.keys(order)){const valid=(saved[g]||[]).filter(id=>catalog[g].some(x=>x[0]===id));order[g]=[...valid,...order[g].filter(id=>!valid.includes(id))]}}render();status('লগইন ও Firebase সংযোগ সফল।');}catch(e){render();status('লেআউট লোড করা যায়নি: '+e.message)}});
-$('saveBtn').onclick=async()=>{const user=auth.currentUser;if(!user){status('আগে Admin হিসেবে লগইন করুন।');return}try{await setDoc(doc(db,'siteContent','cardLayout'),{groups:order,updatedAt:serverTimestamp(),updatedBy:user.uid});status('সফল! Layout Firebase-এ সেভ হয়েছে। সাইট রিফ্রেশ করে পরীক্ষা করুন।')}catch(e){status('সেভ ব্যর্থ: '+e.message+'\nFirestore Rules-এ আপনার UID admin হিসেবে যোগ করা আছে কি না দেখুন।')}};
+
+const app = getApps().length
+  ? getApps()[0]
+  : initializeApp(firebaseConfig);
+
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const catalog = {
+  services: [
+    ['ration','রেশন কার্ড'],
+    ['pan','PAN কার্ড'],
+    ['voter','ভোটার কার্ড'],
+    ['aadhaar','আধার কার্ড']
+  ],
+  tools: [
+    ['notes','আমার নোট'],
+    ['checklist','ডকুমেন্ট চেকলিস্ট']
+  ],
+  sidebar: [
+    ['government-portals','সরকারি পোর্টাল'],
+    ['utility-panel','ডকুমেন্ট ও ইউটিলিটি'],
+    ['security-panel','নিরাপত্তার কথা']
+  ]
+};
+
+const names = {
+  services: 'গুরুত্বপূর্ণ কার্ড',
+  tools: 'দ্রুত ব্যবহারের টুলস',
+  sidebar: 'সাইডবার প্যানেল'
+};
+
+const $ = id => document.getElementById(id);
+
+const originalOrder = Object.fromEntries(
+  Object.entries(catalog).map(([group,items]) => [
+    group, items.map(item => item[0])
+  ])
+);
+
+let order = structuredClone(originalOrder);
+let draggedId = null;
+let saving = false;
+
+function status(message) {
+  $('status').textContent = message;
+}
+
+function allKnownIds() {
+  return new Set(Object.values(catalog).flat().map(item => item[0]));
+}
+
+function cardLabel(id) {
+  for (const items of Object.values(catalog)) {
+    const found = items.find(item => item[0] === id);
+    if (found) return found[1];
+  }
+  // অজানা/custom ID মুছে না ফেলে দেখানো হবে
+  return id;
+}
+
+function normalizeOrder(savedGroups = {}) {
+  const next = {};
+  const used = new Set();
+
+  for (const group of Object.keys(catalog)) {
+    next[group] = [];
+
+    for (const id of (savedGroups[group] || [])) {
+      if (typeof id !== 'string' || used.has(id)) continue;
+      next[group].push(id);
+      used.add(id);
+    }
+  }
+
+  // যেসব পুরোনো built-in কার্ড এখনো কোনো গ্রুপে নেই,
+  // সেগুলো তাদের আগের গ্রুপে ফিরিয়ে রাখা হবে।
+  for (const [group, ids] of Object.entries(originalOrder)) {
+    for (const id of ids) {
+      if (!used.has(id)) {
+        next[group].push(id);
+        used.add(id);
+      }
+    }
+  }
+
+  return next;
+}
+
+function moveCard(fromGroup, toGroup, id, beforeId = null) {
+  if (!order[fromGroup] || !order[toGroup]) return;
+
+  const fromIndex = order[fromGroup].indexOf(id);
+  if (fromIndex < 0) return;
+
+  // একই কার্ডের অবস্থান বদলালে target index আগে হিসাব করা হবে।
+  const targetIndex = beforeId === null
+    ? order[toGroup].length
+    : order[toGroup].indexOf(beforeId);
+
+  order[fromGroup].splice(fromIndex, 1);
+
+  let insertIndex;
+
+  if (beforeId === null) {
+    insertIndex = order[toGroup].length;
+  } else {
+    insertIndex = order[toGroup].indexOf(beforeId);
+    if (insertIndex < 0) insertIndex = order[toGroup].length;
+  }
+
+  order[toGroup].splice(insertIndex, 0, id);
+  render();
+}
+
+function moveWithinGroup(group, index, delta) {
+  const ids = order[group];
+  const target = index + delta;
+
+  if (target < 0 || target >= ids.length) return;
+
+  [ids[index], ids[target]] = [ids[target], ids[index]];
+  render();
+}
+
+function render() {
+  const host = $('groups');
+  host.replaceChildren();
+
+  for (const group of Object.keys(names)) {
+    const section = document.createElement('div');
+    section.className = 'box';
+
+    const header = document.createElement('div');
+    header.className = 'group-title';
+
+    const title = document.createElement('h3');
+    title.textContent = names[group];
+
+    const count = document.createElement('span');
+    count.className = 'small';
+    count.textContent = order[group].length + 'টি কার্ড';
+
+    header.append(title, count);
+    section.append(header);
+
+    const list = document.createElement('div');
+    list.className = 'card-list';
+    list.dataset.group = group;
+
+    list.addEventListener('dragover', event => {
+      event.preventDefault();
+      list.classList.add('drag-target');
+      if (event.dataTransfer) event.dataTransfer.dropEffect = 'move';
+    });
+
+    list.addEventListener('dragleave', event => {
+      if (!list.contains(event.relatedTarget)) {
+        list.classList.remove('drag-target');
+      }
+    });
+
+    // লিস্টের ফাঁকা জায়গাতেও drop করা যাবে।
+    list.addEventListener('drop', event => {
+      event.preventDefault();
+      event.stopPropagation();
+      list.classList.remove('drag-target');
+
+      const id = event.dataTransfer?.getData('text/plain');
+      if (!id) return;
+
+      const sourceGroup = Object.keys(order).find(
+        key => order[key].includes(id)
+      );
+
+      if (!sourceGroup) return;
+
+      // কোনো নির্দিষ্ট কার্ডের ওপর drop না হলে লিস্টের শেষে যাবে।
+      if (event.target.closest('.item')) return;
+
+      moveCard(sourceGroup, group, id);
+    });
+
+    order[group].forEach((id, index) => {
+      const row = document.createElement('div');
+      row.className = 'item';
+      row.draggable = true;
+      row.dataset.id = id;
+
+      const grip = document.createElement('b');
+      grip.textContent = '⠿';
+
+      const label = document.createElement('span');
+      label.textContent = cardLabel(id);
+
+      row.append(grip, label);
+
+      for (const [symbol, delta] of [['↑', -1], ['↓', 1]]) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.textContent = symbol;
+        button.title = delta < 0 ? 'উপরে নিন' : 'নিচে নিন';
+        button.disabled = delta < 0
+          ? index === 0
+          : index === order[group].length - 1;
+
+        button.addEventListener('click', () => {
+          moveWithinGroup(group, index, delta);
+        });
+
+        row.append(button);
+      }
+
+      row.addEventListener('dragstart', event => {
+        draggedId = id;
+        row.classList.add('dragging');
+
+        event.dataTransfer.setData('text/plain', id);
+        event.dataTransfer.effectAllowed = 'move';
+      });
+
+      row.addEventListener('dragend', () => {
+        draggedId = null;
+        row.classList.remove('dragging');
+
+        document.querySelectorAll('.drag-target').forEach(element => {
+          element.classList.remove('drag-target');
+        });
+      });
+
+      row.addEventListener('dragover', event => {
+        event.preventDefault();
+        event.stopPropagation();
+        row.style.outline = '2px dashed #4263eb';
+      });
+
+      row.addEventListener('dragleave', () => {
+        row.style.outline = '';
+      });
+
+      row.addEventListener('drop', event => {
+        event.preventDefault();
+        event.stopPropagation();
+        row.style.outline = '';
+
+        const movingId =
+          event.dataTransfer?.getData('text/plain') || draggedId;
+
+        if (!movingId || movingId === id) return;
+
+        const sourceGroup = Object.keys(order).find(
+          key => order[key].includes(movingId)
+        );
+
+        if (!sourceGroup) return;
+
+        moveCard(sourceGroup, group, movingId, id);
+      });
+
+      list.append(row);
+    });
+
+    section.append(list);
+    host.append(section);
+  }
+}
+
+$('loginBtn').addEventListener('click', async () => {
+  $('loginStatus').textContent = 'লগইন হচ্ছে…';
+
+  try {
+    await signInWithEmailAndPassword(
+      auth,
+      $('email').value.trim(),
+      $('password').value
+    );
+
+    $('loginStatus').textContent = 'লগইন সফল';
+  } catch (error) {
+    $('loginStatus').textContent =
+      'লগইন ব্যর্থ: ' + error.message;
+  }
+});
+
+$('password').addEventListener('keydown', event => {
+  if (event.key === 'Enter') $('loginBtn').click();
+});
+
+$('logoutBtn').addEventListener('click', async () => {
+  try {
+    await signOut(auth);
+  } catch (error) {
+    status('Logout ব্যর্থ: ' + error.message);
+  }
+});
+
+onAuthStateChanged(auth, async user => {
+  if (!user) {
+    $('login').classList.remove('hidden');
+    $('manager').classList.add('hidden');
+    return;
+  }
+
+  $('login').classList.add('hidden');
+  $('manager').classList.remove('hidden');
+  status('Firebase থেকে Layout লোড হচ্ছে…');
+
+  try {
+    const snapshot = await getDoc(
+      doc(db, 'siteContent', 'cardLayout')
+    );
+
+    if (snapshot.exists()) {
+      const savedGroups = snapshot.data().groups || {};
+      order = normalizeOrder(savedGroups);
+    } else {
+      order = structuredClone(originalOrder);
+    }
+
+    render();
+    status('Layout লোড হয়েছে। পরিবর্তন করে Save করুন।');
+  } catch (error) {
+    render();
+    status('Layout লোড করা যায়নি: ' + error.message);
+  }
+});
+
+$('saveBtn').addEventListener('click', async () => {
+  const user = auth.currentUser;
+
+  if (!user) {
+    status('আগে Admin হিসেবে লগইন করুন।');
+    return;
+  }
+
+  if (saving) return;
+
+  saving = true;
+  $('saveBtn').disabled = true;
+  status('Layout Firebase-এ সেভ হচ্ছে…');
+
+  try {
+    await setDoc(
+      doc(db, 'siteContent', 'cardLayout'),
+      {
+        groups: order,
+        updatedAt: serverTimestamp(),
+        updatedBy: user.uid
+      },
+      { merge: true }
+    );
+
+    status(
+      'সফল! Layout Firebase-এ সেভ হয়েছে।\n' +
+      'Dashboard রিফ্রেশ করে পরিবর্তন পরীক্ষা করুন।'
+    );
+  } catch (error) {
+    status(
+      'সেভ ব্যর্থ: ' + error.message +
+      '\nFirestore Rules-এ Admin UID ও write permission পরীক্ষা করুন।'
+    );
+  } finally {
+    saving = false;
+    $('saveBtn').disabled = false;
+  }
+});
+
 render();
-</script></body></html>
+</script>
+</body>
+</html>
