@@ -98,24 +98,28 @@ const catalog = {
     ['government-portals','সরকারি পোর্টাল'],
     ['utility-panel','ডকুমেন্ট ও ইউটিলিটি'],
     ['security-panel','নিরাপত্তার কথা']
-  ]
+  ],
+  adminLinks: []
 };
 
 const names = {
   services: 'গুরুত্বপূর্ণ কার্ড',
   tools: 'দ্রুত ব্যবহারের টুলস',
-  sidebar: 'সাইডবার প্যানেল'
+  sidebar: 'সাইডবার প্যানেল',
+  adminLinks: 'অ্যাডমিনের পছন্দের লিংক'
 };
 
 const $ = id => document.getElementById(id);
 
-const originalOrder = Object.fromEntries(
+let originalOrder = Object.fromEntries(
   Object.entries(catalog).map(([group,items]) => [
     group, items.map(item => item[0])
   ])
 );
 
 let order = structuredClone(originalOrder);
+let adminLinkItems = [];
+let adminLinkMap = new Map();
 let draggedId = null;
 let saving = false;
 
@@ -128,11 +132,14 @@ function allKnownIds() {
 }
 
 function cardLabel(id) {
+  if (adminLinkMap.has(id)) {
+    const item = adminLinkMap.get(id);
+    return item.title || item.url || id;
+  }
   for (const items of Object.values(catalog)) {
     const found = items.find(item => item[0] === id);
     if (found) return found[1];
   }
-  // অজানা/custom ID মুছে না ফেলে দেখানো হবে
   return id;
 }
 
@@ -383,9 +390,27 @@ onAuthStateChanged(auth, async user => {
   status('Firebase থেকে Layout লোড হচ্ছে…');
 
   try {
-    const snapshot = await getDoc(
-      doc(db, 'siteContent', 'cardLayout')
+    // Admin panel-এ তৈরি করা public links-ও লোড হবে
+    const linksSnapshot = await getDoc(doc(db, 'siteContent', 'customLinks'));
+    const rawItems = linksSnapshot.exists() && Array.isArray(linksSnapshot.data().items)
+      ? linksSnapshot.data().items
+      : [];
+
+    adminLinkItems = rawItems
+      .filter(item => item && typeof item.title === 'string' && typeof item.url === 'string')
+      .map((item, index) => ({
+        ...item,
+        id: (typeof item.id === 'string' && item.id) ? item.id : 'admin-link-' + index
+      }));
+
+    adminLinkMap = new Map(adminLinkItems.map(item => [item.id, item]));
+    catalog.adminLinks = adminLinkItems.map(item => [item.id, item.title || item.url]);
+
+    originalOrder = Object.fromEntries(
+      Object.entries(catalog).map(([group, items]) => [group, items.map(item => item[0])])
     );
+
+    const snapshot = await getDoc(doc(db, 'siteContent', 'cardLayout'));
 
     if (snapshot.exists()) {
       const savedGroups = snapshot.data().groups || {};
@@ -394,8 +419,13 @@ onAuthStateChanged(auth, async user => {
       order = structuredClone(originalOrder);
     }
 
+    // নতুন/অ্যাডমিনের কোনো লিংক আগের layout-এ না থাকলে তালিকার শেষে যোগ হবে
+    for (const id of originalOrder.adminLinks || []) {
+      if (!Object.values(order).some(ids => ids.includes(id))) order.adminLinks.push(id);
+    }
+
     render();
-    status('Layout লোড হয়েছে। পরিবর্তন করে Save করুন।');
+    status('Layout লোড হয়েছে। অ্যাডমিনের লিংকসহ কার্ড সাজিয়ে Save করুন।');
   } catch (error) {
     render();
     status('Layout লোড করা যায়নি: ' + error.message);
@@ -421,6 +451,21 @@ $('saveBtn').addEventListener('click', async () => {
       doc(db, 'siteContent', 'cardLayout'),
       {
         groups: order,
+        updatedAt: serverTimestamp(),
+        updatedBy: user.uid
+      },
+      { merge: true }
+    );
+
+    // Admin links-এর নতুন order-ও customLinks document-এ সেভ হবে
+    const orderedAdminLinks = (order.adminLinks || [])
+      .map(id => adminLinkMap.get(id))
+      .filter(Boolean);
+
+    await setDoc(
+      doc(db, 'siteContent', 'customLinks'),
+      {
+        items: orderedAdminLinks,
         updatedAt: serverTimestamp(),
         updatedBy: user.uid
       },
