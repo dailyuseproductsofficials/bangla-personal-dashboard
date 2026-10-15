@@ -22,21 +22,21 @@
     h2 { font-size: 19px; margin-top: 0; }
     p { line-height: 1.6; color: #536176; }
     label { display: block; font-size: 14px; margin: 14px 0 6px; }
-    input, textarea {
+    input {
       width: 100%; padding: 12px; border: 1px solid #cbd5e1;
       border-radius: 10px; font: inherit; background: #fff;
     }
-    textarea { min-height: 82px; resize: vertical; }
-    button {
-      border: 0; border-radius: 10px; padding: 12px 16px;
-      margin-top: 14px; font: inherit; font-weight: 650;
-      cursor: pointer; background: #155eef; color: white;
+    button, .action-link {
+      display: inline-block; border: 0; border-radius: 10px;
+      padding: 12px 16px; margin-top: 14px; font: inherit;
+      font-weight: 650; cursor: pointer;
+      background: #155eef; color: white; text-decoration: none;
     }
     button.secondary { background: #e8eef8; color: #172033; }
     button.danger { background: #b42318; }
     button:disabled { opacity: .55; cursor: wait; }
     .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-    .row button { margin-top: 8px; }
+    .row button, .row .action-link { margin-top: 8px; }
     .muted { font-size: 13px; color: #64748b; }
     .status { padding: 12px; border-radius: 10px; background: #eef4ff; }
     .item { border-top: 1px solid #e2e8f0; padding: 14px 0; overflow-wrap: anywhere; }
@@ -67,10 +67,17 @@
   <section id="dashboard" hidden>
     <div class="card">
       <div class="row" style="justify-content:space-between">
-        <h2>ড্যাশবোর্ড</h2>
+        <h2>অ্যাডমিন ড্যাশবোর্ড</h2>
         <button id="logoutBtn" class="secondary" type="button">লগআউট</button>
       </div>
       <p id="accountInfo" class="muted"></p>
+
+      <div class="row">
+        <a class="action-link" href="layout-manager.html">🎛️ কার্ড সাজান →</a>
+        <a class="action-link" href="index.html">🏠 হোমপেজ দেখুন →</a>
+      </div>
+      <p class="muted">কার্ডের ক্রম পরিবর্তন করতে “কার্ড সাজান” নির্বাচন করুন। লেআউট সংরক্ষণ করতে Layout Manager-এর Save অপশন ব্যবহার করুন।</p>
+
       <div id="status" class="status" role="status">Firebase সংযোগের অপেক্ষায়...</div>
     </div>
 
@@ -90,7 +97,7 @@
           <button id="cancelEditBtn" class="secondary" type="button" hidden>এডিট বাতিল</button>
         </div>
       </form>
-      <p class="muted">এই সংস্করণে লিংকগুলি Firestore-এ সংরক্ষিত হবে। হোমপেজে দেখাতে পরের ধাপে index.html-কে সংযুক্ত করতে হবে।</p>
+      <p class="muted">লিংকগুলি Firestore-এ সংরক্ষিত হবে। হোমপেজে দেখানোর জন্য index.html-এও Firebase সংযোগ থাকতে হবে।</p>
     </div>
 
     <div class="card">
@@ -143,7 +150,8 @@
       "unavailable": "Firebase-এ সংযোগ করা যাচ্ছে না। ইন্টারনেট পরীক্ষা করুন।"
     };
     return messages[error.code] ||
-      (error.message || "একটি সমস্যা হয়েছে। Firebase সেটিংস পরীক্ষা করুন.");
+      error.message ||
+      "একটি সমস্যা হয়েছে। Firebase সেটিংস পরীক্ষা করুন।";
   }
 
   function safeHttpUrl(value) {
@@ -174,11 +182,13 @@
     links.forEach(item => {
       const wrap = document.createElement("div");
       wrap.className = "item";
+
       const title = document.createElement("strong");
       title.textContent = item.title || "নামহীন লিংক";
 
       const desc = document.createElement("p");
       desc.textContent = item.description || "";
+
       const anchor = document.createElement("a");
       anchor.textContent = item.url;
       anchor.href = item.url;
@@ -206,8 +216,10 @@
       remove.textContent = "মুছুন";
       remove.addEventListener("click", async () => {
         if (!confirm(`"${item.title}" লিংকটি মুছে ফেলবেন?`)) return;
+
         const oldLinks = links;
         links = links.filter(link => link.id !== item.id);
+
         try {
           await setDoc(contentRef, { items: links });
           renderLinks();
@@ -230,22 +242,32 @@
       const snapshot = await getDoc(contentRef);
       const items = snapshot.exists() ? snapshot.data().items : [];
       links = Array.isArray(items)
-        ? items.filter(x => x && typeof x.id === "string" &&
-            typeof x.title === "string" && safeHttpUrl(x.url))
+        ? items.filter(x =>
+            x &&
+            typeof x.id === "string" &&
+            typeof x.title === "string" &&
+            safeHttpUrl(x.url)
+          )
         : [];
       renderLinks();
       showStatus("Firebase সংযোগ সফল।");
     } catch (error) {
       showStatus(explainError(error), true);
-      $("linksList").textContent = "তথ্য লোড করা যায়নি। Firestore Rules ও Firebase সেটিংস পরীক্ষা করুন।";
+      $("linksList").textContent =
+        "তথ্য লোড করা যায়নি। Firestore Rules ও Firebase সেটিংস পরীক্ষা করুন।";
     }
   }
 
   $("loginForm").addEventListener("submit", async event => {
     event.preventDefault();
     $("loginBtn").disabled = true;
+
     try {
-      await signInWithEmailAndPassword(auth, $("email").value.trim(), $("password").value);
+      await signInWithEmailAndPassword(
+        auth,
+        $("email").value.trim(),
+        $("password").value
+      );
     } catch (error) {
       alert(explainError(error));
     } finally {
@@ -253,7 +275,14 @@
     }
   });
 
-  $("logoutBtn").addEventListener("click", () => signOut(auth));
+  $("logoutBtn").addEventListener("click", async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      showStatus(explainError(error), true);
+    }
+  });
+
   $("cancelEditBtn").addEventListener("click", resetForm);
 
   $("linkForm").addEventListener("submit", async event => {
@@ -262,6 +291,7 @@
 
     const title = $("title").value.trim();
     const url = $("url").value.trim();
+
     if (!safeHttpUrl(url)) {
       showStatus("সঠিক http বা https URL দিন।", true);
       return;
@@ -272,7 +302,10 @@
       title,
       url,
       description: $("description").value.trim(),
-      keywords: $("keywords").value.split(",").map(s => s.trim()).filter(Boolean)
+      keywords: $("keywords").value
+        .split(",")
+        .map(s => s.trim())
+        .filter(Boolean)
     };
 
     const oldLinks = links;
@@ -281,6 +314,7 @@
       : [...links, item];
 
     $("saveBtn").disabled = true;
+
     try {
       await setDoc(contentRef, { items: links });
       resetForm();
@@ -298,8 +332,10 @@
   onAuthStateChanged(auth, async user => {
     $("loginCard").hidden = !!user;
     $("dashboard").hidden = !user;
+
     if (user) {
-      $("accountInfo").textContent = "লগইন করা অ্যাকাউন্ট: " + user.email;
+      $("accountInfo").textContent =
+        "লগইন করা অ্যাকাউন্ট: " + (user.email || "");
       await loadLinks();
     } else {
       links = [];
